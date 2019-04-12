@@ -85,7 +85,7 @@ set(ProjectId ${ProjectName})
 # Version / Dependency's system
 
 # Set it to ON if you are in unstable branch otherwise set it to OFF
-set(ProjectVersionSnapshot OFF)
+set(ProjectVersionSnapshot ON)
 set(ProjectVersionMajor 0)
 set(ProjectVersionMinor 1)
 set(ProjectVersionPatch 0)

@@ -38,7 +38,7 @@ int main (void){
     std::cout << std::endl;
     std::cout << "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@" << std::endl;
     std::cout << "@   " << std::endl;
-    std::cout << "@   " << STSFF_LOGGING_PROJECT_ID << " : " << STSFF_LOGGING_VERSION_STRING << std::endl;
+    std::cout << "@   " << STSFF_LOGGING_PROJECT_ID << " : " << STSFF_LOGGING_VERSION_STRING << "-" << STSFF_LOGGING_RELEASE_TYPE << std::endl;
     std::cout << "@   " << STSFF_LOGGING_VCS_BRANCH << " : " << STSFF_LOGGING_VCS_REVISION << std::endl;
     std::cout << "@   " << STSFF_LOGGING_COMPILER_NAME << " : " << STSFF_LOGGING_COMPILER_VERSION << std::endl;
     std::cout << "@   " << STSFF_LOGGING_COMPILE_DATE << " : " << STSFF_LOGGING_COMPILE_TIME << std::endl;

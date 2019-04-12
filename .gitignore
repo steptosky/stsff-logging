@@ -1,0 +1,9 @@
+msvc-2017/
+output/
+doc-generated/
+doc.bat
+test_package/build/
+vcs_data
+set-conan-user.bat
+include/stsff/logging/Export.h
+include/stsff/logging/Info.h

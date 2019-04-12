@@ -17,7 +17,7 @@ set CTEST_OUTPUT_ON_FAILURE=1
 call python build.py
 
 :: uncomment next line if you want to remove all packages from all versions from specified channel
-:: call conan remove your_lib_name/*@stsff/testing -f
+:: call conan remove your_lib_name/*stsff/testing -f
 
 pause
 

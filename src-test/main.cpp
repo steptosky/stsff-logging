@@ -34,9 +34,9 @@
 
 #include "ph/stdafx.h"
 
-#include "gtest/gtest.h"
-#include "gmock/gmock.h"
-#include "stsff/logging/Info.h"
+#include <gtest/gtest.h>
+#include <gmock/gmock.h>
+#include <stsff/logging/Info.h>
 
 /**************************************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -31,7 +31,7 @@
 #include "ph/stdafx.h"
 
 #include <stsff/logging/utils/ByteFormat.h>
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
 
 using namespace stsff::logging;
 

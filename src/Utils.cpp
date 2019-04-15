@@ -29,7 +29,7 @@
 
 #include "stdafx.h"
 
-#include "stsff/logging/internal/Utils.h"
+#include "stsff/logging/internal/InternalUtils.h"
 #include <cstring>
 
 namespace stsff {

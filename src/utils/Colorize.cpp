@@ -482,16 +482,6 @@ namespace logging {
         //////////////////////////////////////////* Functions */////////////////////////////////////////////
         /**************************************************************************************************/
 
-        std::ostream & colorize(std::ostream & stream) {
-            stream.iword(gColorizeIndex) = 1L;
-            return stream;
-        }
-
-        std::ostream & noColorize(std::ostream & stream) {
-            stream.iword(gColorizeIndex) = 0L;
-            return stream;
-        }
-
         std::ostream & reset(std::ostream & stream) {
             if (isColorized(stream)) {
                 COLORIZE_ON_MACOS(stream << "\033[00m");

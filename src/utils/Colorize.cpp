@@ -31,7 +31,7 @@
 #include "stdafx.h"
 
 #include <ostream>
-#include "stsff/logging/Colorize.h"
+#include "stsff/logging/utils/Colorize.h"
 
 #if defined(_WIN32) || defined(_WIN64)
 #   define COLORIZE_OS_WINDOWS

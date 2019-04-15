@@ -31,7 +31,7 @@
 */
 
 #include <iosfwd>
-#include "Export.h"
+#include "stsff/logging/Export.h"
 
 namespace stsff {
 namespace logging {

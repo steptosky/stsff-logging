@@ -33,7 +33,7 @@
 #include <iostream>
 #include <mutex>
 #include "stsff/logging/BaseLogger.h"
-#include "stsff/logging/Colorize.h"
+#include "stsff/logging/utils/Colorize.h"
 
 namespace stsff {
 namespace logging {

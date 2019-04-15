@@ -33,7 +33,7 @@
 #include <sstream>
 #include <algorithm>
 #include <stsff/logging/BaseLogger.h>
-#include <stsff/logging/Colorize.h>
+#include <stsff/logging/utils/Colorize.h>
 
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"

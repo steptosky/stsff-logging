@@ -31,7 +31,7 @@
 #include "ph/stdafx.h"
 
 #include "gtest/gtest.h"
-#include <stsff/logging/Colorize.h>
+#include <stsff/logging/utils/Colorize.h>
 
 using namespace stsff::logging;
 

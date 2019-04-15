@@ -36,47 +36,45 @@
 
 namespace stsff {
 namespace logging {
-    namespace utils {
 
-        /**************************************************************************************************/
-        ////////////////////////////////////////////////////////////////////////////////////////////////////
-        /**************************************************************************************************/
+    /**************************************************************************************************/
+    ////////////////////////////////////////////////////////////////////////////////////////////////////
+    /**************************************************************************************************/
 
-        class ByteFormat {
-            ByteFormat() = default;
-        public:
+    class ByteFormat {
+        ByteFormat() = default;
+    public:
 
-            typedef std::uint64_t Size;
+        typedef std::uint64_t Size;
 
-            enum eBinValue : Size {
-                BYTE = 1,
-                KILOBYTE = 1024 * BYTE,
-                MEGABYTE = 1024 * KILOBYTE,
-                GIGABYTE = 1024 * MEGABYTE,
-                TERABYTE = 1024 * GIGABYTE,
-                PETABYTE = 1024 * TERABYTE,
-                EXABYTE = 1024 * PETABYTE,
-            };
-
-            enum eSiValue : Size {
-                SI_BYTE = 1,
-                SI_KILOBYTE = 1000 * SI_BYTE,
-                SI_MEGABYTE = 1000 * SI_KILOBYTE,
-                SI_GIGABYTE = 1000 * SI_MEGABYTE,
-                SI_TERABYTE = 1000 * SI_GIGABYTE,
-                SI_PETABYTE = 1000 * SI_TERABYTE,
-                SI_EXABYTE = 1000 * SI_PETABYTE,
-            };
-
-            LoggingExp static std::string bin(Size size);
-            LoggingExp static std::string si(Size size);
-
+        enum eBinValue : Size {
+            BYTE = 1,
+            KILOBYTE = 1024 * BYTE,
+            MEGABYTE = 1024 * KILOBYTE,
+            GIGABYTE = 1024 * MEGABYTE,
+            TERABYTE = 1024 * GIGABYTE,
+            PETABYTE = 1024 * TERABYTE,
+            EXABYTE = 1024 * PETABYTE,
         };
 
-        /**************************************************************************************************/
-        ////////////////////////////////////////////////////////////////////////////////////////////////////
-        /**************************************************************************************************/
+        enum eSiValue : Size {
+            SI_BYTE = 1,
+            SI_KILOBYTE = 1000 * SI_BYTE,
+            SI_MEGABYTE = 1000 * SI_KILOBYTE,
+            SI_GIGABYTE = 1000 * SI_MEGABYTE,
+            SI_TERABYTE = 1000 * SI_GIGABYTE,
+            SI_PETABYTE = 1000 * SI_TERABYTE,
+            SI_EXABYTE = 1000 * SI_PETABYTE,
+        };
 
-    }
+        LoggingExp static std::string bin(Size size);
+        LoggingExp static std::string si(Size size);
+
+    };
+
+    /**************************************************************************************************/
+    ////////////////////////////////////////////////////////////////////////////////////////////////////
+    /**************************************************************************************************/
+
 }
 }

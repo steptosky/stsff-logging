@@ -34,105 +34,103 @@
 
 namespace stsff {
 namespace logging {
-    namespace utils {
 
-        /**************************************************************************************************/
-        //////////////////////////////////////////* Functions */////////////////////////////////////////////
-        /**************************************************************************************************/
+    /**************************************************************************************************/
+    //////////////////////////////////////////* Functions */////////////////////////////////////////////
+    /**************************************************************************************************/
 
-        inline std::string byteFormat(const char * formatting, const float value, const char * unit) {
-            char buff[10] = {0};
+    inline std::string byteFormat(const char * formatting, const float value, const char * unit) {
+        char buff[10] = {0};
 #ifdef _MSC_VER
-            return (sprintf_s(buff, 10, formatting, value, unit) < 0) ? std::string() : std::string(buff);
+        return (sprintf_s(buff, 10, formatting, value, unit) < 0) ? std::string() : std::string(buff);
 #else
             return (sprintf(buff, formatting, value, unit) < 0) ? std::string() : std::string(buff);
 #endif
-        }
-
-        /**************************************************************************************************/
-        //////////////////////////////////////////* Functions */////////////////////////////////////////////
-        /**************************************************************************************************/
-
-        std::string ByteFormat::bin(const Size size) {
-            const char * unit = nullptr;
-            auto value = float(size);
-
-            if (size >= EXABYTE) {
-                unit = "EiB";
-                value /= EXABYTE;
-            }
-            else if (size >= PETABYTE) {
-                unit = "PiB";
-                value /= PETABYTE;
-            }
-            else if (size >= TERABYTE) {
-                unit = "TiB";
-                value /= TERABYTE;
-            }
-            else if (size >= GIGABYTE) {
-                unit = "GiB";
-                value /= GIGABYTE;
-            }
-            else if (size >= MEGABYTE) {
-                unit = "MiB";
-                value /= MEGABYTE;
-            }
-            else if (size >= KILOBYTE) {
-                unit = "KiB";
-                value /= KILOBYTE;
-            }
-            else if (size >= BYTE) {
-                unit = "B";
-            }
-            else if (size == 0) {
-                return "0 B";
-            }
-
-            return size < KILOBYTE ? byteFormat("%.0f %s", value, unit) : byteFormat("%.1f %s", value, unit);
-        }
-
-        std::string ByteFormat::si(const Size size) {
-            const char * unit = nullptr;
-            auto value = float(size);
-
-            if (size >= SI_EXABYTE) {
-                unit = "EB";
-                value /= SI_EXABYTE;
-            }
-            else if (size >= SI_PETABYTE) {
-                unit = "PB";
-                value /= SI_PETABYTE;
-            }
-            else if (size >= SI_TERABYTE) {
-                unit = "TB";
-                value /= SI_TERABYTE;
-            }
-            else if (size >= SI_GIGABYTE) {
-                unit = "GB";
-                value /= SI_GIGABYTE;
-            }
-            else if (size >= SI_MEGABYTE) {
-                unit = "MB";
-                value /= SI_MEGABYTE;
-            }
-            else if (size >= SI_KILOBYTE) {
-                unit = "kB";
-                value /= SI_KILOBYTE;
-            }
-            else if (size >= SI_BYTE) {
-                unit = "B";
-            }
-            else if (size == 0) {
-                return "0 B";
-            }
-
-            return size < SI_KILOBYTE ? byteFormat("%.0f %s", value, unit) : byteFormat("%.1f %s", value, unit);
-        }
-
-        /**************************************************************************************************/
-        ////////////////////////////////////////////////////////////////////////////////////////////////////
-        /**************************************************************************************************/
-
     }
+
+    /**************************************************************************************************/
+    //////////////////////////////////////////* Functions */////////////////////////////////////////////
+    /**************************************************************************************************/
+
+    std::string ByteFormat::bin(const Size size) {
+        const char * unit = nullptr;
+        auto value = float(size);
+
+        if (size >= EXABYTE) {
+            unit = "EiB";
+            value /= EXABYTE;
+        }
+        else if (size >= PETABYTE) {
+            unit = "PiB";
+            value /= PETABYTE;
+        }
+        else if (size >= TERABYTE) {
+            unit = "TiB";
+            value /= TERABYTE;
+        }
+        else if (size >= GIGABYTE) {
+            unit = "GiB";
+            value /= GIGABYTE;
+        }
+        else if (size >= MEGABYTE) {
+            unit = "MiB";
+            value /= MEGABYTE;
+        }
+        else if (size >= KILOBYTE) {
+            unit = "KiB";
+            value /= KILOBYTE;
+        }
+        else if (size >= BYTE) {
+            unit = "B";
+        }
+        else if (size == 0) {
+            return "0 B";
+        }
+
+        return size < KILOBYTE ? byteFormat("%.0f %s", value, unit) : byteFormat("%.1f %s", value, unit);
+    }
+
+    std::string ByteFormat::si(const Size size) {
+        const char * unit = nullptr;
+        auto value = float(size);
+
+        if (size >= SI_EXABYTE) {
+            unit = "EB";
+            value /= SI_EXABYTE;
+        }
+        else if (size >= SI_PETABYTE) {
+            unit = "PB";
+            value /= SI_PETABYTE;
+        }
+        else if (size >= SI_TERABYTE) {
+            unit = "TB";
+            value /= SI_TERABYTE;
+        }
+        else if (size >= SI_GIGABYTE) {
+            unit = "GB";
+            value /= SI_GIGABYTE;
+        }
+        else if (size >= SI_MEGABYTE) {
+            unit = "MB";
+            value /= SI_MEGABYTE;
+        }
+        else if (size >= SI_KILOBYTE) {
+            unit = "kB";
+            value /= SI_KILOBYTE;
+        }
+        else if (size >= SI_BYTE) {
+            unit = "B";
+        }
+        else if (size == 0) {
+            return "0 B";
+        }
+
+        return size < SI_KILOBYTE ? byteFormat("%.0f %s", value, unit) : byteFormat("%.1f %s", value, unit);
+    }
+
+    /**************************************************************************************************/
+    ////////////////////////////////////////////////////////////////////////////////////////////////////
+    /**************************************************************************************************/
+
 }
 }

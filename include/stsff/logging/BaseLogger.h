@@ -265,6 +265,13 @@ namespace logging {
          */
         LoggingExp static void defaultThreadSafeCallBack(const BaseLogger * logger, const LogMsg & logMsg);
 
+        /*!
+         * \details Makes timestamp string.
+         * \param [in] format see description of C++ std::strftime function.
+         *                    Maximum string size is 99.
+         */
+        LoggingExp static std::string timeStamp(const std::string & format = "%Y-%m-%d %T");
+
         /// @}
         //---------------------------------------------------------------
         /// @{

@@ -106,19 +106,15 @@ namespace logging {
     //////////////////////////////////////////* Functions */////////////////////////////////////////////
     /**************************************************************************************************/
 
-    inline void timeFormat(const std::vector<std::ostream *> & streams, BaseLogger::StringView format) {
+    std::string BaseLogger::timeStamp(const std::string & format) {
+        std::string out;
         if (format.empty()) {
-            return;
+            return out;
         }
         //-------------------
-        const std::size_t formattingBuffSize = 32;
         const std::size_t timeBuffSize = 100;
-        //-------------------
-        assert(format.size() < formattingBuffSize-1);
-        char formatting[formattingBuffSize] = {0};
-        formatting[formattingBuffSize - 1] = '\0';
-        std::memcpy(formatting, format.data(), std::min(formattingBuffSize - 2, format.size()));
-        char buffer[timeBuffSize] = {0};
+        char buffer[100] = {0};
+        assert(format.size() < timeBuffSize - 1);
         //-------------------
         time_t time = std::time(nullptr);
         tm timeInfo = {};
@@ -127,9 +123,11 @@ namespace logging {
 #else
         timeInfo = *localtime(&time);
 #endif
-        if (std::strftime(buffer, sizeof(buffer), formatting, &timeInfo) > 0) {
-            for (auto & s : streams) { *s << buffer; }
+        const auto byteNum = std::strftime(buffer, sizeof buffer, format.c_str(), &timeInfo);
+        if (byteNum > 0) {
+            out.append(buffer, byteNum);
         }
+        return out;
     }
 
     void BaseLogger::defaultThreadSafeCallBack(const BaseLogger * logger, const LogMsg & logMsg) {
@@ -277,9 +275,10 @@ namespace logging {
                         }
                         break;
                     }
-                    const StringView formattingTimeString(&*ch, length == 0 ? 0 : length - 1); // remove last ')' char
+                    const std::string formattingTimeString(&*ch, length == 0 ? 0 : length - 1); // remove last ')' char
                     ch = endOfTimeFormat;
-                    timeFormat(*streams, formattingTimeString);
+                    const auto t = timeStamp(formattingTimeString);
+                    for (auto & s : *streams) { *s << t; }
                     ++ch;
                     break;
                 }

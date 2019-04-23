@@ -71,7 +71,7 @@ TEST(BaseLogger, formatting) {
     //---------------
     callback.clear();
     LogMessage(logger).message() << "message" << LPush;
-    EXPECT_STREQ("log-category,message,unspecified,unspecified,0\n", callback.result().c_str());
+    EXPECT_STREQ("log-category,message,,,0\n", callback.result().c_str());
     //---------------
     callback.clear();
     LogMessage(logger, "function", "file", 5).message() << "message" << LPush;
@@ -85,7 +85,7 @@ TEST(BaseLogger, formatting_custom_level) {
     logger.setLevelConfig(BaseLogger::eLevel(5), BaseLogger::LevelConfig({&callback.stream}, "5,%LC,%MS,%FN,%FI,%LI"));
     //---------------
     LogMessage(logger).level(5) << "message" << LPush;
-    EXPECT_STREQ("5,unspecified,message,unspecified,unspecified,0\n", callback.result().c_str());
+    EXPECT_STREQ("5,,message,,,0\n", callback.result().c_str());
     //---------------
 }
 
@@ -104,7 +104,7 @@ TEST(BaseLogger, formatting_unknown_level) {
         throw;
     }
     ASSERT_STREQ(" level configuration isn't specified for the level: [25]\n\
-UNSPECIFIED LVL CONF: unspecified message \n\t[unspecified -> unspecified(0)]\n", callback.result().c_str());
+UNSPECIFIED LVL CONF:  message \n\t[ -> (0)]\n", callback.result().c_str());
 }
 
 TEST(BaseLogger, formatting_level) {
@@ -119,7 +119,7 @@ TEST(BaseLogger, formatting_level) {
     //---------------
     callback.clear();
     LogMessage(logger).warning() << "message" << LPush;
-    ASSERT_STREQ("WRN: unspecified message\n", callback.result().c_str());
+    ASSERT_STREQ("WRN:  message\n", callback.result().c_str());
 }
 
 #ifdef NDEBUG // 'Only file name' is enabled in release mode
@@ -291,7 +291,7 @@ TEST(BaseLogger, threadsafe_simple_test) {
     logger.setCallBack(BaseLogger::defaultThreadSafeCallBack);
     //---------------
     LogMessage(logger).debug() << "message" << LPush;
-    ASSERT_STREQ("DBG: unspecified message\n", callback.result().c_str());
+    ASSERT_STREQ("DBG:  message\n", callback.result().c_str());
 }
 
 /**************************************************************************************************/

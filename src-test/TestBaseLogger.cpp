@@ -114,7 +114,7 @@ TEST(BaseLogger, formatting_unknown_level) {
         throw;
     }
     ASSERT_STREQ(" level configuration isn't specified for the level: 25\n\
-UNSPECIFIED LEVEL CONG: unspecified unspecified message \n\t[unspecified -> unspecified(0)]\n", callback.result().c_str());
+UNSPECIFIED LEVEL CONF: unspecified unspecified message \n\t[unspecified -> unspecified(0)]\n", callback.result().c_str());
 }
 
 TEST(BaseLogger, formatting_level) {

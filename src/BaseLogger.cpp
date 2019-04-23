@@ -137,7 +137,7 @@ namespace logging {
     }
 
     void BaseLogger::defaultCallBack(const BaseLogger * logger, const LogMsg & logMsg) {
-        static const LevelConfig defaultLevel({&std::cout}, "UNSPECIFIED LEVEL CONG:", "%LB %LC %MC %MS \n\t[%FN -> %FI(%LI)]", colorize::yellow);
+        static const LevelConfig defaultLevel({&std::cout}, "UNSPECIFIED LEVEL CONF:", "%LB %LC %MC %MS \n\t[%FN -> %FI(%LI)]", colorize::yellow);
 
         const std::uint32_t time = ('T' << 8) | 'M';
         const std::uint32_t label = ('L' << 8) | 'B';

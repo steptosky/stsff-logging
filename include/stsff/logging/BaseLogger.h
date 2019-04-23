@@ -51,9 +51,8 @@ namespace logging {
      * \details By default it prints all messages to std::cout and std::cerr.
      * \details Default log level is \"LvlDebug\".
      * \details Default callback is \link BaseLogger::defaultCallBack \endlink
-     * \details The logger supports categories for logger and messages.
+     * \details The logger supports categories for logger.
      * \code \link logger->setLogCategoryName("my logger category") \endlink; \endcode
-     * \code LCategoryMessage(logger, "my message category") << "my message"; \endcode
      * \note You can define log printing for your own types. \see \link LogMessage \endlink
      * \note You can define your own levels as this is just std::size_t.
      */
@@ -89,16 +88,14 @@ namespace logging {
          * \brief Represents a log message.
          */
         struct LogMsg {
-            LogMsg(const std::size_t lvl, const StringView category, const StringView msg,
+            LogMsg(const std::size_t lvl, const StringView msg,
                    const StringView fn, const StringView fl, const int ln)
-                : mCategory(category),
-                  mMsg(msg),
+                : mMsg(msg),
                   mFunction(fn),
                   mFile(fl),
                   mLevel(lvl),
                   mLine(ln) {}
 
-            StringView mCategory; //!< message category.
             StringView mMsg;      //!< message itself.
             StringView mFunction; //!< function name.
             StringView mFile;     //!< source file name.
@@ -116,8 +113,7 @@ namespace logging {
          *          \code  LevelConfig({&std::cout}, "ERR: ", "ERR: %LC %MC [%TM(%Y-%m-%d %T)] %MS \n\t[%FN -> %FI(%LI)]", colorize::red) \endcode
          *          \li \%TM - time that takes format string for the std::strftime function inside brackets.
          *          \li \%LC - log category.
-         *          \li \%MC - message category.
-         *          \li \%MS - message itself.
+         *          \li \%MS - message.
          *          \li \%FN - function name.
          *          \li \%FI - file name.
          *          \li \%LI - file line.
@@ -360,28 +356,16 @@ namespace logging {
         /// @{
 
         explicit LogMessage(const BaseLogger & logger)
-            : LogMessage(&logger, StringView("unspecified"), StringView("unspecified"), StringView("unspecified"), 0) {}
+            : LogMessage(&logger, StringView("unspecified"), StringView("unspecified"), 0) {}
 
         explicit LogMessage(const BaseLogger * logger)
-            : LogMessage(logger, StringView("unspecified"), StringView("unspecified"), StringView("unspecified"), 0) {}
-
-        LogMessage(const BaseLogger & logger, const StringView category)
-            : LogMessage(&logger, category, StringView("unspecified"), StringView("unspecified"), 0) {}
-
-        LogMessage(const BaseLogger * logger, const StringView category)
-            : LogMessage(logger, category, StringView("unspecified"), StringView("unspecified"), 0) {}
+            : LogMessage(logger, StringView("unspecified"), StringView("unspecified"), 0) {}
 
         LogMessage(const BaseLogger & logger, const StringView function, const StringView file, const int line)
-            : LogMessage(&logger, StringView("unspecified"), function, file, line) {}
+            : LogMessage(&logger, function, file, line) {}
 
         LogMessage(const BaseLogger * logger, const StringView function, const StringView file, const int line)
-            : LogMessage(logger, StringView("unspecified"), function, file, line) {}
-
-        LogMessage(const BaseLogger & logger, const StringView category, const StringView function, const StringView file, const int line)
-            : LogMessage(&logger, category, function, file, line) {}
-
-        LogMessage(const BaseLogger * logger, const StringView category, const StringView function, const StringView file, const int line)
-            : mLogMsg(BaseLogger::LvlMsg, category, StringView(), function, file, line),
+            : mLogMsg(BaseLogger::LvlMsg, StringView(), function, file, line),
               mLog(logger) {
             assert(mLog);
         }
@@ -469,11 +453,6 @@ namespace logging {
         //---------------------------------------------------------------
         /// @{
 
-        LogMessage & setCategory(const StringView category) {
-            mLogMsg.mCategory = category;
-            return *this;
-        }
-
         LogMessage & setFunction(const StringView fn) {
             mLogMsg.mFunction = fn;
             return *this;
@@ -553,16 +532,6 @@ namespace logging {
 #   define LMessage(L)        stsff::logging::LogMessage(L, __STS_FUNC_NAME__,  stsff::logging::internal::fileName(__FILE__), __LINE__).message()
 #   define LDebug(L)          stsff::logging::LogMessage(L, __STS_FUNC_NAME__,  stsff::logging::internal::fileName(__FILE__), __LINE__).debug()
 #   define LLevel(L,LVL)      stsff::logging::LogMessage(L, __STS_FUNC_NAME__,  stsff::logging::internal::fileName(__FILE__), __LINE__).level(LVL)
-
-// Category log messages
-#   define LCatCritical(L,C)  stsff::logging::LogMessage(L, C, __STS_FUNC_NAME__, stsff::logging::internal::fileName(__FILE__), __LINE__).critical()
-#   define LCatError(L,C)     stsff::logging::LogMessage(L, C, __STS_FUNC_NAME__, stsff::logging::internal::fileName(__FILE__), __LINE__).error()
-#   define LCatWarning(L,C)   stsff::logging::LogMessage(L, C, __STS_FUNC_NAME__, stsff::logging::internal::fileName(__FILE__), __LINE__).warning()
-#   define LCatSuccess(L,C)   stsff::logging::LogMessage(L, C, __STS_FUNC_NAME__, stsff::logging::internal::fileName(__FILE__), __LINE__).success()
-#   define LCatInfo(L,C)      stsff::logging::LogMessage(L, C, __STS_FUNC_NAME__, stsff::logging::internal::fileName(__FILE__), __LINE__).info()
-#   define LCatMessage(L,C)   stsff::logging::LogMessage(L, C, __STS_FUNC_NAME__, stsff::logging::internal::fileName(__FILE__), __LINE__).message()
-#   define LCatDebug(L,C)     stsff::logging::LogMessage(L, C, __STS_FUNC_NAME__, stsff::logging::internal::fileName(__FILE__), __LINE__).debug()
-#   define LCatLevel(L,V,LVL) stsff::logging::LogMessage(L, C, __STS_FUNC_NAME__, stsff::logging::internal::fileName(__FILE__), __LINE__).level(LVL)
 
 // Force push
 #   define LPush stsff::logging::LogMessage::CmdPush()

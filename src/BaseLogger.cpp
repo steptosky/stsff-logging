@@ -194,7 +194,7 @@ namespace logging {
                             << " unexpected end of formatting string after '"
                             << *ch
                             << "', expected the second command letter"
-                            << colorize::reset << std::endl;
+                            << colorize::reset;
                 }
                 break;
             }
@@ -244,7 +244,7 @@ namespace logging {
                         for (auto & s : *streams) {
                             *s << colorize::red
                                     << " unexpected end of formatting string after the time command, expected '()'"
-                                    << colorize::reset << std::endl;
+                                    << colorize::reset;
                         }
                         break;
                     }
@@ -252,8 +252,9 @@ namespace logging {
                         for (auto & s : *streams) {
                             *s << colorize::red
                                     << " unexpected symbol " << *ch << " after time command, expected '('"
-                                    << colorize::reset << std::endl;
+                                    << colorize::reset;
                         }
+                        ++ch;
                         break;
                     }
                     ++ch; // skip '('
@@ -266,7 +267,7 @@ namespace logging {
                         for (auto & s : *streams) {
                             *s << colorize::red
                                     << " unexpected end of formatting string after the time command, missed ')'"
-                                    << colorize::reset << std::endl;
+                                    << colorize::reset;
                         }
                         break;
                     }
@@ -280,8 +281,8 @@ namespace logging {
                 default: {
                     for (auto & s : *streams) {
                         *s << colorize::red
-                                << " unknown formatting command: " << char(command) << char(command >> 8)
-                                << colorize::reset << std::endl;
+                                << " unknown formatting command: " << char(command >> 8) << char(command)
+                                << colorize::reset;
                     }
                 }
             }

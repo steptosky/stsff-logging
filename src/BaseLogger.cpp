@@ -32,6 +32,8 @@
 
 #include <iostream>
 #include <mutex>
+#include <ctime>
+#include <algorithm>
 #include "stsff/logging/BaseLogger.h"
 #include "stsff/logging/utils/Colorize.h"
 
@@ -45,13 +47,34 @@ namespace logging {
     BaseLogger::BaseLogger(const StringView category, const CallBack & callBack)
         : BaseLogger(category,
                          {
-                                 {LvlDebug, LevelConfig("DBG: ", &std::cout, colorize::magenta, false, false)},
-                                 {LvlMsg, LevelConfig("-- ", &std::cout, nullptr, false, false)},
-                                 {LvlInfo, LevelConfig("INF: ", &std::cout, colorize::cyan, false, false)},
-                                 {LvlSuccess, LevelConfig("INF: ", &std::cout, colorize::green, false, false)},
-                                 {LvlWarning, LevelConfig("WRN: ", &std::cout, colorize::yellow, false, false)},
-                                 {LvlError, LevelConfig("ERR: ", &std::cerr, colorize::red, true, true)},
-                                 {LvlCritical, LevelConfig("CRL: ", &std::cerr, colorize::red, true, true)},
+                                 {
+                                     LvlDebug,
+                                     LevelConfig({&std::cout}, "DBG: ", "%LB %LC %MC %MS", colorize::magenta)
+                                 },
+                                 {
+                                     LvlMsg,
+                                     LevelConfig({&std::cout}, "-- ", "%LB %LC %MC %MS", nullptr)
+                                 },
+                                 {
+                                     LvlInfo,
+                                     LevelConfig({&std::cout}, "INF: ", "%LB %LC %MC %MS", colorize::cyan)
+                                 },
+                                 {
+                                     LvlSuccess,
+                                     LevelConfig({&std::cout}, "INF: ", "%LB %LC %MC %MS", colorize::green)
+                                 },
+                                 {
+                                     LvlWarning,
+                                     LevelConfig({&std::cout}, "WRN: ", "%LB %LC %MC %MS", colorize::yellow)
+                                 },
+                                 {
+                                     LvlError,
+                                     LevelConfig({&std::cerr}, "ERR: ", "%LB [%TM(%Y-%m-%d %T)] %LC %MC %MS \n\t[%FN -> %FI(%LI)]", colorize::red)
+                                 },
+                                 {
+                                     LvlCritical,
+                                     LevelConfig({&std::cerr}, "CRL: ", "%LB [%TM(%Y-%m-%d %T)] %LC %MC %MS \n\t[%FN -> %FI(%LI)]", colorize::red)
+                                 },
                          },
                      callBack) { }
 
@@ -83,6 +106,32 @@ namespace logging {
     //////////////////////////////////////////* Functions */////////////////////////////////////////////
     /**************************************************************************************************/
 
+    inline void timeFormat(const std::vector<std::ostream *> & streams, BaseLogger::StringView format) {
+        if (format.empty()) {
+            return;
+        }
+        //-------------------
+        const std::size_t formattingBuffSize = 32;
+        const std::size_t timeBuffSize = 100;
+        //-------------------
+        assert(format.size() < formattingBuffSize-1);
+        char formatting[formattingBuffSize] = {0};
+        formatting[formattingBuffSize - 1] = '\0';
+        std::memcpy(formatting, format.data(), std::min(formattingBuffSize - 2, format.size()));
+        char buffer[timeBuffSize] = {0};
+        //-------------------
+        time_t time = std::time(nullptr);
+        tm timeInfo = {};
+#ifdef _MSC_VER
+        localtime_s(&timeInfo, &time);
+#else
+        timeInfo = *localtime(&time);
+#endif
+        if (std::strftime(buffer, sizeof(buffer), formatting, &timeInfo) > 0) {
+            for (auto & s : streams) { *s << buffer; }
+        }
+    }
+
     void BaseLogger::defaultThreadSafeCallBack(const BaseLogger * logger, const LogMsg & logMsg) {
         static std::mutex mutex;
         std::lock_guard<std::mutex> lock(mutex);
@@ -90,63 +139,159 @@ namespace logging {
     }
 
     void BaseLogger::defaultCallBack(const BaseLogger * logger, const LogMsg & logMsg) {
-        const auto printMessage = [&](std::ostream & outStream) {
-            if (logger->mPrintLogCategory && logMsg.mIsPrintCategory && !logger->mCategory.empty()) {
-                outStream.write(logger->mCategory.data(), logger->mCategory.size()) << " ";
-            }
-            if (logMsg.mIsPrintCategory && !logMsg.mCategory.empty()) {
-                outStream.write(logMsg.mCategory.data(), logMsg.mCategory.size()) << " ";
-            }
-            if (!logMsg.mMsg.empty()) {
-                outStream.write(logMsg.mMsg.data(), logMsg.mMsg.size());
-            }
-        };
+        static const std::vector<std::ostream *> defaultStreams = {&std::cout};
+        static const std::vector<std::ostream *> defaultErrStreams = {&std::cerr};
+
+        const std::uint32_t time = ('T' << 8) | 'M';
+        const std::uint32_t label = ('L' << 8) | 'B';
+        const std::uint32_t logCategory = ('L' << 8) | 'C';
+        const std::uint32_t messageCategory = ('M' << 8) | 'C';
+        const std::uint32_t message = ('M' << 8) | 'S';
+        const std::uint32_t functionName = ('F' << 8) | 'N';
+        const std::uint32_t fileName = ('F' << 8) | 'I';
+        const std::uint32_t fileLineNum = ('L' << 8) | 'I';
 
         const auto * levelConf = logger->levelConfig(logMsg.mLevel);
         if (!levelConf) {
-            printMessage(std::cout);
-            if (logMsg.mIsPrintEol) {
-                std::cout << std::endl;
-            }
+            std::cerr << colorize::red
+                    << " level configuration isn't specified for the level: " << logMsg.mLevel
+                    << colorize::reset << std::endl;
             return;
         }
 
-        std::ostream * out = &std::cout;
-        if (levelConf->mStream) {
-            out = levelConf->mStream;
+#ifndef NDEBUG
+        for (auto & s : levelConf->mStreams) {
+            std::cerr << colorize::red
+                    << " nullptr stream in the level configuration: " << logMsg.mLevel
+                    << colorize::reset << std::endl;
+            assert(s);
+        }
+#endif
+
+        auto * streams = &levelConf->mStreams;
+        if (streams->empty()) {
+            streams = logMsg.mLevel <= LvlError ? &defaultErrStreams : &defaultStreams;
         }
 
         if (logger->mTextColorizing && levelConf->mColor) {
-            levelConf->mColor(*out);
+            for (auto & s : *streams) { levelConf->mColor(*s); }
         }
 
-        if (logMsg.mIsPrintLabel) {
-            *out << levelConf->mLabel;
-        }
-        printMessage(*out);
-        if (logger->mTextColorizing) {
-            *out << colorize::reset;
-        }
+        bool process = false;
+        auto ch = levelConf->mFormatting.begin();
 
-        const bool availableToPrinting = (!logMsg.mFunction.empty() || !logMsg.mFile.empty()) &&
-                                         (levelConf->mIsPrintFunction || levelConf->mIsPrintSource);
-
-        if (availableToPrinting) {
-            *out << " \n\t[";
-            if (levelConf->mIsPrintFunction && !logMsg.mFunction.empty()) {
-                out->write(logMsg.mFunction.data(), logMsg.mFunction.size());
+        while (ch != levelConf->mFormatting.end()) {
+            if (*ch == '%') {
+                process = true;
+                ++ch;
+                continue;
             }
-            if (levelConf->mIsPrintSource && !logMsg.mFile.empty()) {
-                (*out << " -> ").write(logMsg.mFile.data(), logMsg.mFile.size());
-                if (logMsg.mLine > 0) {
-                    *out << "(" << logMsg.mLine << ")";
+            if (!process) {
+                for (auto & s : *streams) { *s << *ch; }
+                ++ch;
+                continue;
+            }
+            process = false;
+            const auto second = ch + 1;
+            if (second == levelConf->mFormatting.end()) {
+                for (auto & s : *streams) {
+                    *s << colorize::red
+                            << " unexpected end of formatting string after '"
+                            << *ch
+                            << "', expected the second command letter"
+                            << colorize::reset << std::endl;
+                }
+                break;
+            }
+
+            const std::uint32_t command = (*ch << 8) | *second;
+            ch = second;
+
+            switch (command) {
+                case label: {
+                    if (logMsg.mIsPrintLabel) { for (auto & s : *streams) { *s << levelConf->mLabel; } }
+                    break;
+                }
+                case logCategory: {
+                    if (logger->mPrintLogCategory && logMsg.mIsPrintCategory && !logger->mCategory.empty()) {
+                        for (auto & s : *streams) { s->write(logger->mCategory.data(), logger->mCategory.size()); }
+                    }
+                    break;
+                }
+                case messageCategory: {
+                    if (logMsg.mIsPrintCategory && !logMsg.mCategory.empty()) {
+                        for (auto & s : *streams) { s->write(logMsg.mCategory.data(), logMsg.mCategory.size()); }
+                    }
+                    break;
+                }
+                case message: {
+                    if (!logMsg.mMsg.empty()) {
+                        for (auto & s : *streams) { s->write(logMsg.mMsg.data(), logMsg.mMsg.size()); }
+                    }
+                    break;
+                }
+                case functionName: {
+                    for (auto & s : *streams) { s->write(logMsg.mFunction.data(), logMsg.mFunction.size()); }
+                    break;
+                }
+                case fileName: {
+                    for (auto & s : *streams) { s->write(logMsg.mFile.data(), logMsg.mFile.size()); }
+                    break;
+                }
+                case fileLineNum: {
+                    for (auto & s : *streams) { *s << logMsg.mLine; }
+                    break;
+                }
+                case time: {
+                    ++ch;
+                    if (second == levelConf->mFormatting.end()) {
+                        for (auto & s : *streams) {
+                            *s << colorize::red
+                                    << " unexpected end of formatting string after the time command, expected '()'"
+                                    << colorize::reset << std::endl;
+                        }
+                        break;
+                    }
+                    if (*ch != '(') {
+                        for (auto & s : *streams) {
+                            *s << colorize::red
+                                    << " unexpected symbol " << *ch << " after time command, expected '('"
+                                    << colorize::reset << std::endl;
+                        }
+                        break;
+                    }
+                    ++ch; // skip '('
+                    std::size_t length = 0;
+                    auto endOfTimeFormat = std::find_if(ch, levelConf->mFormatting.end(), [&](auto c) {
+                        ++length;
+                        return c == ')';
+                    });
+                    if (endOfTimeFormat == levelConf->mFormatting.end()) {
+                        for (auto & s : *streams) {
+                            *s << colorize::red
+                                    << " unexpected end of formatting string after the time command, missed ')'"
+                                    << colorize::reset << std::endl;
+                        }
+                        break;
+                    }
+                    const StringView formattingTimeString(&*ch, length == 0 ? 0 : length - 1); // remove last ')' char
+                    ch = endOfTimeFormat;
+                    timeFormat(*streams, formattingTimeString);
+                    ++ch;
+                    break;
+                }
+                default: {
+                    for (auto & s : *streams) {
+                        *s << colorize::red
+                                << " unknown formatting command: " << char(command) << char(command >> 8)
+                                << colorize::reset << std::endl;
+                    }
                 }
             }
-            *out << "]";
         }
 
         if (logMsg.mIsPrintEol) {
-            *out << std::endl;
+            for (auto & s : *streams) { *s << std::endl; }
         }
     }
 

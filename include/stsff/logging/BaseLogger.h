@@ -46,11 +46,12 @@ namespace logging {
 
     /*!
      * \brief This is a base logger interface.
-     * \details By default it prints all messages to std::cout.
+     * \details By default it prints all messages to std::cout and std::cerr.
      * \details Default log level is \"LvlDebug\".
-     * \details By default this uses \link BaseLogger::defaultCallBack \endlink
-     * \details The logger supports categories.
-     * \code LCategoryMessage(logger, "my category") << "my message"; \endcode
+     * \details Default callback is \link BaseLogger::defaultCallBack \endlink
+     * \details The logger supports categories for logger and messages.
+     * \code \link logger->setLogCategoryPrint("my logger category") \endlink; \endcode
+     * \code LCategoryMessage(logger, "my message category") << "my message"; \endcode
      * \note You can define log printing for your own types. \see \link LogMessage \endlink
      * \note You can define your own levels as this is just std::size_t.
      */
@@ -115,20 +116,28 @@ namespace logging {
         /*!
          * \brief Represents log level configuration.
          * \details It allows you to adjust each level as you wish.
+         * \details It supports multistream printing and formatting message.
          * \details Setup example:
-         *          \code LevelConfig("DBG: ", &std::cout, colorize::magenta, false, false) \endcode
+         *          \code  LevelConfig({&std::cout}, "ERR: ", "%LB [%TM(%Y-%m-%d %T)] %LC %MC %MS \n\t[%FN -> %FI(%LI)]", colorize::red) \endcode
+         *          \li \%LB - label, like error/debug/warning etc...
+         *          \li \%TM - time that takes format string for the std::strftime function inside brackets.
+         *          \li \%LC - log category.
+         *          \li \%MC - message category.
+         *          \li \%MS - message itself.
+         *          \li \%FN - function name.
+         *          \li \%FI - file name.
+         *          \li \%LI - file line.
          * 
          */
         struct LevelConfig {
             typedef std::ostream &(*ColorFn)(std::ostream &);
 
-            explicit LevelConfig(std::string label, std::ostream * stream, const ColorFn color = nullptr,
-                                 const bool printFunction = false, const bool printSource = false)
-                : mStream(stream),
+            explicit LevelConfig(std::vector<std::ostream *> streams, std::string label,
+                                 std::string formatting, const ColorFn color = nullptr)
+                : mStreams(std::move(streams)),
+                  mFormatting(std::move(formatting)),
                   mLabel(std::move(label)),
-                  mColor(color),
-                  mIsPrintFunction(printFunction),
-                  mIsPrintSource(printSource) {}
+                  mColor(color) {}
 
             LevelConfig(const LevelConfig &) = default;
             LevelConfig(LevelConfig &&) = default;
@@ -138,11 +147,10 @@ namespace logging {
             LevelConfig & operator=(const LevelConfig &) = default;
             LevelConfig & operator=(LevelConfig &&) = default;
 
-            std::ostream * mStream = nullptr; //!< stream where the level will be printed.
-            std::string mLabel;               //!< label like [ERROR, WARNING, etc...]
-            ColorFn mColor;                   //!< text color in terminal.
-            bool mIsPrintFunction;            //!< enable/disable function name printing.
-            bool mIsPrintSource;              //!< enable/disable source information printing.
+            std::vector<std::ostream *> mStreams; //!< stream where the level will be printed.
+            std::string mFormatting;              //!< message formatting
+            std::string mLabel;                   //!< label like [ERROR, WARNING, etc...]
+            ColorFn mColor;                       //!< text color in terminal.
         };
 
         /// @}

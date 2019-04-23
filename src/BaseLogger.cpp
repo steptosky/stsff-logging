@@ -137,8 +137,7 @@ namespace logging {
     }
 
     void BaseLogger::defaultCallBack(const BaseLogger * logger, const LogMsg & logMsg) {
-        static const std::vector<std::ostream *> defaultStreams = {&std::cout};
-        static const std::vector<std::ostream *> defaultErrStreams = {&std::cerr};
+        static const LevelConfig defaultLevel({&std::cout}, "UNSPECIFIED LEVEL CONG: ", "%LB %LC %MC %MS \n\t[%FN -> %FI(%LI)]", colorize::yellow);
 
         const std::uint32_t time = ('T' << 8) | 'M';
         const std::uint32_t label = ('L' << 8) | 'B';
@@ -149,12 +148,12 @@ namespace logging {
         const std::uint32_t fileName = ('F' << 8) | 'I';
         const std::uint32_t fileLineNum = ('L' << 8) | 'I';
 
-        const auto * levelConf = logger->levelConfig(logMsg.mLevel);
+        auto * levelConf = logger->levelConfig(logMsg.mLevel);
         if (!levelConf) {
-            std::cerr << colorize::red
-                    << " level configuration isn't specified for the level: " << logMsg.mLevel
-                    << colorize::reset << std::endl;
-            return;
+            levelConf = &defaultLevel;
+            for (auto & s : levelConf->mStreams) {
+                *s << " level configuration isn't specified for the level: " << logMsg.mLevel << std::endl;
+            }
         }
 
 #ifndef NDEBUG
@@ -169,10 +168,6 @@ namespace logging {
 #endif
 
         auto * streams = &levelConf->mStreams;
-        if (streams->empty()) {
-            streams = logMsg.mLevel <= LvlError ? &defaultErrStreams : &defaultStreams;
-        }
-
         if (logger->mTextColorizing && levelConf->mColor) {
             for (auto & s : *streams) { levelConf->mColor(*s); }
         }
@@ -290,6 +285,9 @@ namespace logging {
                     }
                 }
             }
+        }
+        if (logger->mTextColorizing) {
+            for (auto & s : *streams) { *s << colorize::reset; }
         }
         for (auto & s : *streams) { *s << std::endl; }
     }

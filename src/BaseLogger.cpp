@@ -69,11 +69,11 @@ namespace logging {
                                  },
                                  {
                                      LvlError,
-                                     LevelConfig({&std::cerr}, "ERR: ", "%LB [%TM(%Y-%m-%d %T)] %LC %MC %MS \n\t[%FN -> %FI(%LI)]", colorize::red)
+                                     LevelConfig({&std::cerr}, "ERR: ", "%LB %LC %MC [%TM(%Y-%m-%d %T)] %MS \n\t[%FN -> %FI(%LI)]", colorize::red)
                                  },
                                  {
                                      LvlCritical,
-                                     LevelConfig({&std::cerr}, "CRL: ", "%LB [%TM(%Y-%m-%d %T)] %LC %MC %MS \n\t[%FN -> %FI(%LI)]", colorize::red)
+                                     LevelConfig({&std::cerr}, "CRL: ", "%LB %LC %MC [%TM(%Y-%m-%d %T)] %MS \n\t[%FN -> %FI(%LI)]", colorize::red)
                                  },
                          },
                      callBack) { }
@@ -161,10 +161,12 @@ namespace logging {
 
 #ifndef NDEBUG
         for (auto & s : levelConf->mStreams) {
-            std::cerr << colorize::red
-                    << " nullptr stream in the level configuration: " << logMsg.mLevel
-                    << colorize::reset << std::endl;
-            assert(s);
+            if (!s) {
+                std::cerr << colorize::red
+                        << " nullptr stream in the level configuration: " << logMsg.mLevel
+                        << colorize::reset << std::endl;
+                assert(s);
+            }
         }
 #endif
 
@@ -205,7 +207,7 @@ namespace logging {
             }
 
             const std::uint32_t command = (*ch << 8) | *second;
-            ch = second;
+            ch = second + 1;
 
             switch (command) {
                 case label: {
@@ -243,8 +245,7 @@ namespace logging {
                     break;
                 }
                 case time: {
-                    ++ch;
-                    if (second == levelConf->mFormatting.end()) {
+                    if (ch == levelConf->mFormatting.end()) {
                         for (auto & s : *streams) {
                             *s << colorize::red
                                     << " unexpected end of formatting string after the time command, expected '()'"

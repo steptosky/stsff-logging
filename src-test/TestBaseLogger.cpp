@@ -65,25 +65,25 @@ public:
 /**************************************************************************************************/
 
 TEST(BaseLogger, forrmating) {
-    BaseLoggerCallback clbk;
-    BaseLogger logger("[logger]");
-    clbk.setupLevels(&logger);
+    BaseLoggerCallback callback;
+    BaseLogger logger("logger");
+    callback.setupLevels(&logger);
     //---------------
-    clbk.clear();
-    LogMessage(logger).error() << "message" << LPush;
-    ASSERT_STREQ("ERR: [logger] message\n", clbk.result().c_str());
+    callback.clear();
+    LogMessage(logger).message() << "message" << LPush;
+    EXPECT_STREQ("ERR: [logger] message\n", callback.result().c_str());
     //---------------
-    clbk.clear();
-    LogMessage(logger, "[category]").error() << "message" << LPush;
-    ASSERT_STREQ("ERR: [logger] [category] message\n", clbk.result().c_str());
+    callback.clear();
+    LogMessage(logger, "[category]").message() << "message" << LPush;
+    EXPECT_STREQ("ERR: [logger] [category] message\n", callback.result().c_str());
     //---------------
-    clbk.clear();
-    LogMessage(logger, "function", "file", 5).error() << "message" << LPush;
-    ASSERT_STREQ("ERR: [logger] message \n\t[function -> file(5)]\n", clbk.result().c_str());
+    callback.clear();
+    LogMessage(logger, "function", "file", 5).message() << "message" << LPush;
+    EXPECT_STREQ("ERR: [logger] message \n\t[function -> file(5)]\n", callback.result().c_str());
     //---------------
-    clbk.clear();
-    LogMessage(logger, "[category]", "function", "file", 5).error() << "message" << LPush;
-    ASSERT_STREQ("ERR: [logger] [category] message \n\t[function -> file(5)]\n", clbk.result().c_str());
+    callback.clear();
+    LogMessage(logger, "[category]", "function", "file", 5).message() << "message" << LPush;
+    EXPECT_STREQ("ERR: [logger] [category] message \n\t[function -> file(5)]\n", callback.result().c_str());
 }
 
 TEST(BaseLogger, forrmating_no_log_category) {

@@ -369,16 +369,16 @@ namespace logging {
         /// @{
 
         explicit LogMessage(const BaseLogger & logger)
-            : LogMessage(&logger, StringView(), StringView(), StringView(), 0) {}
+            : LogMessage(&logger, StringView(), StringView("unspecified"), StringView("unspecified"), 0) {}
 
         explicit LogMessage(const BaseLogger * logger)
-            : LogMessage(logger, StringView(), StringView(), StringView(), 0) {}
+            : LogMessage(logger, StringView(), StringView("unspecified"), StringView("unspecified"), 0) {}
 
         LogMessage(const BaseLogger & logger, const StringView category)
-            : LogMessage(&logger, category, StringView(), StringView(), 0) {}
+            : LogMessage(&logger, category, StringView("unspecified"), StringView("unspecified"), 0) {}
 
         LogMessage(const BaseLogger * logger, const StringView category)
-            : LogMessage(logger, category, StringView(), StringView(), 0) {}
+            : LogMessage(logger, category, StringView("unspecified"), StringView("unspecified"), 0) {}
 
         LogMessage(const BaseLogger & logger, const StringView function, const StringView file, const int line)
             : LogMessage(&logger, StringView(), function, file, line) {}

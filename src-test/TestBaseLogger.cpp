@@ -31,7 +31,6 @@
 #include "ph/stdafx.h"
 
 #include <sstream>
-#include <algorithm>
 #include <stsff/logging/BaseLogger.h>
 #include <stsff/logging/utils/Colorize.h>
 
@@ -52,7 +51,7 @@ public:
     void setupLevels(BaseLogger * logger) {
         assert(logger);
         for (auto & v : logger->levelConfigs()) {
-            v.second.mStream = &stream;
+            v.second.mStreams = {&stream};
         }
     }
 
@@ -64,143 +63,81 @@ public:
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /**************************************************************************************************/
 
-TEST(BaseLogger, forrmating) {
-    BaseLoggerCallback clbk;
-    BaseLogger logger("[logger]");
-    clbk.setupLevels(&logger);
+TEST(BaseLogger, formatting) {
+    BaseLoggerCallback callback;
+    BaseLogger logger("log-category");
+    callback.setupLevels(&logger);
+    logger.levelConfig(BaseLogger::LvlMsg)->mFormatting = "%LC,%MC,%MS,%FN,%FI,%LI";
     //---------------
-    clbk.clear();
-    LogMessage(logger).error() << "message" << LPush;
-    ASSERT_STREQ("ERR: [logger] message\n", clbk.result().c_str());
-    //---------------
-    clbk.clear();
-    LogMessage(logger, "[category]").error() << "message" << LPush;
-    ASSERT_STREQ("ERR: [logger] [category] message\n", clbk.result().c_str());
-    //---------------
-    clbk.clear();
-    LogMessage(logger, "function", "file", 5).error() << "message" << LPush;
-    ASSERT_STREQ("ERR: [logger] message \n\t[function -> file(5)]\n", clbk.result().c_str());
-    //---------------
-    clbk.clear();
-    LogMessage(logger, "[category]", "function", "file", 5).error() << "message" << LPush;
-    ASSERT_STREQ("ERR: [logger] [category] message \n\t[function -> file(5)]\n", clbk.result().c_str());
-}
-
-TEST(BaseLogger, forrmating_no_log_category) {
-    BaseLoggerCallback clbk;
-    BaseLogger logger("[logger]");
-    clbk.setupLevels(&logger);
-    //---------------
-    clbk.clear();
-    LogMessage(logger, "[category]", "function", "file", 5).error() << "message" << LPush;
-    ASSERT_STREQ("ERR: [logger] [category] message \n\t[function -> file(5)]\n", clbk.result().c_str());
-    //---------------
-    clbk.clear();
-    logger.setLogCategoryPrint(false);
-    LogMessage(logger, "[category]", "function", "file", 5).error() << "message" << LPush;
-    ASSERT_STREQ("ERR: [category] message \n\t[function -> file(5)]\n", clbk.result().c_str());
-}
-
-TEST(BaseLogger, forrmating_level_default_labels) {
-    BaseLoggerCallback clbk;
-    BaseLogger logger;
-    clbk.setupLevels(&logger);
-    //---------------
-    clbk.clear();
-    LogMessage(logger).debug() << "message" << LPush;
-    ASSERT_STREQ("DBG: message\n", clbk.result().c_str());
-    //---------------
-    clbk.clear();
+    callback.clear();
     LogMessage(logger).message() << "message" << LPush;
-    ASSERT_STREQ("-- message\n", clbk.result().c_str());
+    EXPECT_STREQ("log-category,unspecified,message,unspecified,unspecified,0\n", callback.result().c_str());
     //---------------
-    clbk.clear();
-    LogMessage(logger).info() << "message" << LPush;
-    ASSERT_STREQ("INF: message\n", clbk.result().c_str());
+    callback.clear();
+    LogMessage(logger, "message-category").message() << "message" << LPush;
+    EXPECT_STREQ("log-category,message-category,message,unspecified,unspecified,0\n", callback.result().c_str());
     //---------------
-    clbk.clear();
-    LogMessage(logger).warning() << "message" << LPush;
-    ASSERT_STREQ("WRN: message\n", clbk.result().c_str());
+    callback.clear();
+    LogMessage(logger, "function", "file", 5).message() << "message" << LPush;
+    EXPECT_STREQ("log-category,unspecified,message,function,file,5\n", callback.result().c_str());
     //---------------
-    clbk.clear();
-    LogMessage(logger).error() << "message" << LPush;
-    ASSERT_STREQ("ERR: message\n", clbk.result().c_str());
-    //---------------
-    clbk.clear();
-    LogMessage(logger).critical() << "message" << LPush;
-    ASSERT_STREQ("CRL: message\n", clbk.result().c_str());
-    //---------------
+    callback.clear();
+    LogMessage(logger, "message-category", "function", "file", 5).message() << "message" << LPush;
+    EXPECT_STREQ("log-category,message-category,message,function,file,5\n", callback.result().c_str());
 }
 
-TEST(BaseLogger, forrmating_custom_level) {
-    BaseLoggerCallback clbk;
+TEST(BaseLogger, formatting_custom_level) {
+    BaseLoggerCallback callback;
     BaseLogger logger;
-    clbk.setupLevels(&logger);
-    logger.setLevelConfig(BaseLogger::eLevel(5), BaseLogger::LevelConfig("5: ", &clbk.stream));
+    callback.setupLevels(&logger);
+    logger.setLevelConfig(BaseLogger::eLevel(5), BaseLogger::LevelConfig({&callback.stream}, "5,%LC,%MC,%MS,%FN,%FI,%LI"));
     //---------------
     LogMessage(logger).level(5) << "message" << LPush;
-    ASSERT_STREQ("5: message\n", clbk.result().c_str());
+    EXPECT_STREQ("5,unspecified,unspecified,message,unspecified,unspecified,0\n", callback.result().c_str());
     //---------------
 }
 
-TEST(BaseLogger, forrmating_unknown_level) {
-    BaseLoggerCallback clbk;
+TEST(BaseLogger, formatting_unknown_level) {
+    BaseLoggerCallback callback;
     BaseLogger logger;
-    clbk.setupLevels(&logger);
+    callback.setupLevels(&logger);
     auto * coutBuff = std::cout.rdbuf();
-    std::cout.rdbuf(clbk.stream.rdbuf());
+    std::cout.rdbuf(callback.stream.rdbuf());
     try {
-        LLevel(logger, 25) << "message" << LPush;
+        LogMessage(logger).level(25) << "message" << LPush;
         std::cout.rdbuf(coutBuff);
     }
     catch (...) {
         std::cout.rdbuf(coutBuff);
         throw;
     }
-    ASSERT_STREQ("message\n", clbk.result().c_str());
+    ASSERT_STREQ(" level configuration isn't specified for the level: [25]\n\
+UNSPECIFIED LEVEL CONF: unspecified unspecified message \n\t[unspecified -> unspecified(0)]\n", callback.result().c_str());
 }
 
-TEST(BaseLogger, forrmating_level) {
-    BaseLoggerCallback clbk;
+TEST(BaseLogger, formatting_level) {
+    BaseLoggerCallback callback;
     BaseLogger logger;
-    clbk.setupLevels(&logger);
+    callback.setupLevels(&logger);
     logger.setPrintLevel(BaseLogger::LvlWarning);
     //---------------
-    clbk.clear();
+    callback.clear();
     LogMessage(logger).info() << "message" << LPush;
-    ASSERT_STREQ("", clbk.result().c_str());
+    ASSERT_STREQ("", callback.result().c_str());
     //---------------
-    clbk.clear();
+    callback.clear();
     LogMessage(logger).warning() << "message" << LPush;
-    ASSERT_STREQ("WRN: message\n", clbk.result().c_str());
-}
-
-TEST(BaseLogger, forrmating_no_source) {
-    BaseLoggerCallback clbk;
-    BaseLogger logger({{BaseLogger::LvlMsg, BaseLogger::LevelConfig("-- ", nullptr, nullptr, true, false)}});
-    clbk.setupLevels(&logger);
-    //---------------
-    LogMessage(logger, "[category]", "function", "file", 5).message() << "message" << LPush;
-    ASSERT_STREQ("-- [category] message \n\t[function]\n", clbk.result().c_str());
-}
-
-TEST(BaseLogger, forrmating_no_function) {
-    BaseLoggerCallback clbk;
-    BaseLogger logger({{BaseLogger::LvlMsg, BaseLogger::LevelConfig("-- ", nullptr, nullptr, false, true)}});
-    clbk.setupLevels(&logger);
-    //---------------
-    LogMessage(logger, "[category]", "function", "file", 5).message() << "message" << LPush;
-    ASSERT_STREQ("-- [category] message \n\t[ -> file(5)]\n", clbk.result().c_str());
+    ASSERT_STREQ("WRN: unspecified unspecified message\n", callback.result().c_str());
 }
 
 #ifdef NDEBUG // 'Only file name' is enabled in release mode
-TEST(BaseLogger, forrmating_sources_only_filename) {
-    BaseLoggerCallback clbk;
+TEST(BaseLogger, formatting_sources_only_filename) {
+    BaseLoggerCallback callback;
     BaseLogger logger;
-    clbk.setupLevels(&logger);
+    callback.setupLevels(&logger);
     //---------------
     LMessage(logger) << "message" << LPush;
-    auto result = clbk.result();
+    auto result = callback.result();
     const auto it = std::find_if(result.begin(), result.end(), [](const char v) {
         return v == '\\' || v == '/';
     });
@@ -219,90 +156,150 @@ TEST(BaseLogger, colorize) {
     LCritical(logger) << "critical message" << LPush;
 }
 
+TEST(BaseLogger, time_stamp) {
+    BaseLoggerCallback callback;
+    BaseLogger logger;
+    callback.setupLevels(&logger);
+    logger.setLevelConfig(BaseLogger::LvlMsg, BaseLogger::LevelConfig({&callback.stream}, "%TM(%Y)"));
+    //---------------
+    LogMessage(logger).message() << "message" << LPush;
+    EXPECT_STREQ(BaseLogger::timeStamp("%Y\n").c_str(), callback.result().c_str());
+    //---------------
+}
+
+/**************************************************************************************************/
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/**************************************************************************************************/
+
+#ifndef NDEBUG
+TEST(BaseLogger, invalid_callback_data_null_stream) {
+    BaseLoggerCallback callback;
+    BaseLogger logger;
+    callback.setupLevels(&logger);
+    logger.setLevelConfig(BaseLogger::LvlMsg, BaseLogger::LevelConfig({nullptr}, "%TM(%Y)"));
+    //---------------
+    ASSERT_DEBUG_DEATH(LogMessage(logger).message() << "message" << LPush, "");
+    //---------------
+}
+#endif
+
+TEST(BaseLogger, invalid_callback_data_command_case1) {
+    BaseLoggerCallback callback;
+    BaseLogger logger;
+    callback.setupLevels(&logger);
+    logger.setLevelConfig(BaseLogger::LvlMsg, BaseLogger::LevelConfig({&callback.stream}, "%TG"));
+
+    auto * coutBuff = std::cout.rdbuf();
+    std::cout.rdbuf(callback.stream.rdbuf());
+    try {
+        LogMessage(logger).message() << "message" << LPush;
+        std::cout.rdbuf(coutBuff);
+    }
+    catch (...) {
+        std::cout.rdbuf(coutBuff);
+        throw;
+    }
+    //---------------
+    ASSERT_STREQ(" unknown formatting command: [TG]\n", callback.result().c_str());
+    //---------------
+}
+
+TEST(BaseLogger, invalid_callback_data_command_case2) {
+    BaseLoggerCallback callback;
+    BaseLogger logger;
+    callback.setupLevels(&logger);
+    logger.setLevelConfig(BaseLogger::LvlMsg, BaseLogger::LevelConfig({&callback.stream}, "%T"));
+
+    auto * coutBuff = std::cout.rdbuf();
+    std::cout.rdbuf(callback.stream.rdbuf());
+    try {
+        LogMessage(logger).message() << "message" << LPush;
+        std::cout.rdbuf(coutBuff);
+    }
+    catch (...) {
+        std::cout.rdbuf(coutBuff);
+        throw;
+    }
+    //---------------
+    ASSERT_STREQ(" unexpected end of formatting string after [T], expected the second command letter\n", callback.result().c_str());
+    //---------------
+}
+
+TEST(BaseLogger, invalid_callback_data_time_command_case1) {
+    BaseLoggerCallback callback;
+    BaseLogger logger;
+    callback.setupLevels(&logger);
+    logger.setLevelConfig(BaseLogger::LvlMsg, BaseLogger::LevelConfig({&callback.stream}, "%TM"));
+
+    auto * coutBuff = std::cout.rdbuf();
+    std::cout.rdbuf(callback.stream.rdbuf());
+    try {
+        LogMessage(logger).message() << "message" << LPush;
+        std::cout.rdbuf(coutBuff);
+    }
+    catch (...) {
+        std::cout.rdbuf(coutBuff);
+        throw;
+    }
+    //---------------
+    ASSERT_STREQ(" unexpected end of formatting string after the time command, expected '()'\n", callback.result().c_str());
+    //---------------
+}
+
+TEST(BaseLogger, invalid_callback_data_time_command_case2) {
+    BaseLoggerCallback callback;
+    BaseLogger logger;
+    callback.setupLevels(&logger);
+    logger.setLevelConfig(BaseLogger::LvlMsg, BaseLogger::LevelConfig({&callback.stream}, "%TMG"));
+
+    auto * coutBuff = std::cout.rdbuf();
+    std::cout.rdbuf(callback.stream.rdbuf());
+    try {
+        LogMessage(logger).message() << "message" << LPush;
+        std::cout.rdbuf(coutBuff);
+    }
+    catch (...) {
+        std::cout.rdbuf(coutBuff);
+        throw;
+    }
+    //---------------
+    ASSERT_STREQ(" unexpected symbol G after time command, expected '('\n", callback.result().c_str());
+    //---------------
+}
+
+TEST(BaseLogger, invalid_callback_data_time_command_case3) {
+    BaseLoggerCallback callback;
+    BaseLogger logger;
+    callback.setupLevels(&logger);
+    logger.setLevelConfig(BaseLogger::LvlMsg, BaseLogger::LevelConfig({&callback.stream}, "%TM("));
+
+    auto * coutBuff = std::cout.rdbuf();
+    std::cout.rdbuf(callback.stream.rdbuf());
+    try {
+        LogMessage(logger).message() << "message" << LPush;
+        std::cout.rdbuf(coutBuff);
+    }
+    catch (...) {
+        std::cout.rdbuf(coutBuff);
+        throw;
+    }
+    //---------------
+    ASSERT_STREQ(" unexpected end of formatting string after the time command, missed ')'\n", callback.result().c_str());
+    //---------------
+}
+
 /**************************************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /**************************************************************************************************/
 
 TEST(BaseLogger, threadsafe_simple_test) {
-    BaseLoggerCallback clbk;
+    BaseLoggerCallback callback;
     BaseLogger logger;
-    clbk.setupLevels(&logger);
+    callback.setupLevels(&logger);
     logger.setCallBack(BaseLogger::defaultThreadSafeCallBack);
     //---------------
     LogMessage(logger).debug() << "message" << LPush;
-    ASSERT_STREQ("DBG: message\n", clbk.result().c_str());
-}
-
-/**************************************************************************************************/
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/**************************************************************************************************/
-
-TEST(BaseLogger, copy_constructor_call) {
-    BaseLoggerCallback clbk;
-    BaseLogger logger("[logger]");
-    clbk.setupLevels(&logger);
-    //---------------
-    clbk.clear();
-    LogMessage(logger, "[category]", "function", "file", 5).error() << "message" << LPush;
-    ASSERT_STREQ("ERR: [logger] [category] message \n\t[function -> file(5)]\n", clbk.result().c_str());
-    //---------------
-    clbk.clear();
-    BaseLogger logger2(logger);
-    logger2.setLogCategoryName("[logger2]");
-    LogMessage(logger2, "[category]", "function", "file", 5).error() << "message" << LPush;
-    ASSERT_STREQ("ERR: [logger2] [category] message \n\t[function -> file(5)]\n", clbk.result().c_str());
-}
-
-TEST(BaseLogger, copy_constructor_operator) {
-    BaseLoggerCallback clbk;
-    BaseLogger logger("[logger]");
-    clbk.setupLevels(&logger);
-    //---------------
-    clbk.clear();
-    LogMessage(logger, "[category]", "function", "file", 5).error() << "message" << LPush;
-    ASSERT_STREQ("ERR: [logger] [category] message \n\t[function -> file(5)]\n", clbk.result().c_str());
-    //---------------
-    clbk.clear();
-    BaseLogger logger2("[logger2]");
-    logger2.setTextColorizing(false);
-    logger2 = logger;
-    logger2.setLogCategoryName("[logger2]");
-    LogMessage(logger2, "[category]", "function", "file", 5).error() << "message" << LPush;
-    ASSERT_STREQ("ERR: [logger2] [category] message \n\t[function -> file(5)]\n", clbk.result().c_str());
-}
-
-TEST(BaseLogger, move_constructor_call) {
-    BaseLoggerCallback clbk;
-    BaseLogger logger("[logger]");
-    clbk.setupLevels(&logger);
-    //---------------
-    clbk.clear();
-    LogMessage(logger, "[category]", "function", "file", 5).error() << "message" << LPush;
-    ASSERT_STREQ("ERR: [logger] [category] message \n\t[function -> file(5)]\n", clbk.result().c_str());
-    //---------------
-    clbk.clear();
-    BaseLogger logger2(std::move(logger));
-    logger2.setLogCategoryName("[logger2]");
-    LogMessage(logger2, "[category]", "function", "file", 5).error() << "message" << LPush;
-    ASSERT_STREQ("ERR: [logger2] [category] message \n\t[function -> file(5)]\n", clbk.result().c_str());
-}
-
-TEST(BaseLogger, move_constructor_operator) {
-    BaseLoggerCallback clbk;
-    BaseLogger logger("[logger]");
-    clbk.setupLevels(&logger);
-    //---------------
-    clbk.clear();
-    LogMessage(logger, "[category]", "function", "file", 5).error() << "message" << LPush;
-    ASSERT_STREQ("ERR: [logger] [category] message \n\t[function -> file(5)]\n", clbk.result().c_str());
-    //---------------
-    clbk.clear();
-    BaseLogger logger2("[logger2]");
-    logger2.setTextColorizing(false);
-    logger2 = std::move(logger);
-    logger2.setLogCategoryName("[logger2]");
-    LogMessage(logger2, "[category]", "function", "file", 5).error() << "message" << LPush;
-    ASSERT_STREQ("ERR: [logger2] [category] message \n\t[function -> file(5)]\n", clbk.result().c_str());
+    ASSERT_STREQ("DBG: unspecified unspecified message\n", callback.result().c_str());
 }
 
 /**************************************************************************************************/
@@ -310,55 +307,16 @@ TEST(BaseLogger, move_constructor_operator) {
 /**************************************************************************************************/
 
 TEST(LogMessage, abort) {
-    BaseLoggerCallback clbk;
+    BaseLoggerCallback callback;
     BaseLogger logger;
-    clbk.setupLevels(&logger);
+    callback.setupLevels(&logger);
     //---------------
-    clbk.clear();
+    callback.clear();
     LogMessage msg(logger);
     msg.warning() << "message";
     msg.abort();
     msg.push();
-    ASSERT_STREQ("", clbk.result().c_str());
-}
-
-TEST(LogMessage, forrmating_no_eol) {
-    BaseLoggerCallback clbk;
-    BaseLogger logger;
-    clbk.setupLevels(&logger);
-    //---------------
-    LMessage(logger) << "message" << LPush;
-    ASSERT_STREQ("-- message\n", clbk.result().c_str());
-    //---------------
-    clbk.clear();
-    LMessage(logger).noEol() << "message";
-    ASSERT_STREQ("-- message", clbk.result().c_str());
-}
-
-TEST(LogMessage, forrmating_no_category) {
-    BaseLoggerCallback clbk;
-    BaseLogger logger("[logger]");
-    clbk.setupLevels(&logger);
-    //---------------
-    LCatMessage(logger,"[category]") << "message" << LPush;
-    ASSERT_STREQ("-- [logger] [category] message\n", clbk.result().c_str());
-    //---------------
-    clbk.clear();
-    LCatMessage(logger, "[category]").noCategory() << "message";
-    ASSERT_STREQ("-- message\n", clbk.result().c_str());
-}
-
-TEST(LogMessage, forrmating_no_label) {
-    BaseLoggerCallback clbk;
-    BaseLogger logger;
-    clbk.setupLevels(&logger);
-    //---------------
-    LCatMessage(logger, "[category]") << "message" << LPush;
-    ASSERT_STREQ("-- [category] message\n", clbk.result().c_str());
-    //---------------
-    clbk.clear();
-    LCatMessage(logger, "[category]").noLabel() << "message";
-    ASSERT_STREQ("[category] message\n", clbk.result().c_str());
+    ASSERT_STREQ("", callback.result().c_str());
 }
 
 /**************************************************************************************************/

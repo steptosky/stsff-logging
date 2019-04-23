@@ -31,10 +31,12 @@
 */
 
 #include <cassert>
+#include <iostream>
 #include <sstream>
 #include <functional>
 #include <unordered_map>
 #include <limits>
+#include <vector>
 #include "internal/InternalUtils.h"
 
 /**************************************************************************************************/
@@ -46,11 +48,12 @@ namespace logging {
 
     /*!
      * \brief This is a base logger interface.
-     * \details By default it prints all messages to std::cout.
+     * \details By default it prints all messages to std::cout and std::cerr.
      * \details Default log level is \"LvlDebug\".
-     * \details By default this uses \link BaseLogger::defaultCallBack \endlink
-     * \details The logger supports categories.
-     * \code LCategoryMessage(logger, "my category") << "my message"; \endcode
+     * \details Default callback is \link BaseLogger::defaultCallBack \endlink
+     * \details The logger supports categories for logger and messages.
+     * \code \link logger->setLogCategoryName("my logger category") \endlink; \endcode
+     * \code LCategoryMessage(logger, "my message category") << "my message"; \endcode
      * \note You can define log printing for your own types. \see \link LogMessage \endlink
      * \note You can define your own levels as this is just std::size_t.
      */
@@ -87,27 +90,20 @@ namespace logging {
          */
         struct LogMsg {
             LogMsg(const std::size_t lvl, const StringView category, const StringView msg,
-                   const StringView fn, const StringView fl, const int ln,
-                   const bool printEol, const bool printLabel, const bool printCategory)
+                   const StringView fn, const StringView fl, const int ln)
                 : mCategory(category),
                   mMsg(msg),
                   mFunction(fn),
                   mFile(fl),
                   mLevel(lvl),
-                  mLine(ln),
-                  mIsPrintEol(printEol),
-                  mIsPrintLabel(printLabel),
-                  mIsPrintCategory(printCategory) {}
+                  mLine(ln) {}
 
-            StringView mCategory;  //!< message category.
-            StringView mMsg;       //!< message itself.
-            StringView mFunction;  //!< function name.
-            StringView mFile;      //!< source file name.
-            std::size_t mLevel;    //!< level of current message.
-            int mLine;             //!< source line number.
-            bool mIsPrintEol;      //!< enable/disable printing end of line at the message end.
-            bool mIsPrintLabel;    //!< enable/disable printing label like [ERROR, WARNING, etc...].
-            bool mIsPrintCategory; //!< enable/disable printing message category.
+            StringView mCategory; //!< message category.
+            StringView mMsg;      //!< message itself.
+            StringView mFunction; //!< function name.
+            StringView mFile;     //!< source file name.
+            std::size_t mLevel;   //!< level of current message.
+            int mLine;            //!< source line number.
         };
 
         //---------------------------------------------------------------
@@ -115,20 +111,25 @@ namespace logging {
         /*!
          * \brief Represents log level configuration.
          * \details It allows you to adjust each level as you wish.
+         * \details It supports multistream printing and formatting message.
          * \details Setup example:
-         *          \code LevelConfig("DBG: ", &std::cout, colorize::magenta, false, false) \endcode
+         *          \code  LevelConfig({&std::cout}, "ERR: ", "ERR: %LC %MC [%TM(%Y-%m-%d %T)] %MS \n\t[%FN -> %FI(%LI)]", colorize::red) \endcode
+         *          \li \%TM - time that takes format string for the std::strftime function inside brackets.
+         *          \li \%LC - log category.
+         *          \li \%MC - message category.
+         *          \li \%MS - message itself.
+         *          \li \%FN - function name.
+         *          \li \%FI - file name.
+         *          \li \%LI - file line.
          * 
          */
         struct LevelConfig {
             typedef std::ostream &(*ColorFn)(std::ostream &);
 
-            explicit LevelConfig(std::string label, std::ostream * stream, const ColorFn color = nullptr,
-                                 const bool printFunction = false, const bool printSource = false)
-                : mStream(stream),
-                  mLabel(std::move(label)),
-                  mColor(color),
-                  mIsPrintFunction(printFunction),
-                  mIsPrintSource(printSource) {}
+            explicit LevelConfig(std::vector<std::ostream *> streams, std::string formatting, const ColorFn color = nullptr)
+                : mStreams(std::move(streams)),
+                  mFormatting(std::move(formatting)),
+                  mColor(color) {}
 
             LevelConfig(const LevelConfig &) = default;
             LevelConfig(LevelConfig &&) = default;
@@ -138,11 +139,9 @@ namespace logging {
             LevelConfig & operator=(const LevelConfig &) = default;
             LevelConfig & operator=(LevelConfig &&) = default;
 
-            std::ostream * mStream = nullptr; //!< stream where the level will be printed.
-            std::string mLabel;               //!< label like [ERROR, WARNING, etc...]
-            ColorFn mColor;                   //!< text color in terminal.
-            bool mIsPrintFunction;            //!< enable/disable function name printing.
-            bool mIsPrintSource;              //!< enable/disable source information printing.
+            std::vector<std::ostream *> mStreams; //!< stream where the level will be printed.
+            std::string mFormatting;              //!< message formatting
+            ColorFn mColor;                       //!< text color in terminal.
         };
 
         /// @}
@@ -164,7 +163,7 @@ namespace logging {
         //---------------------------------------------------------------
         /// @{
 
-        LoggingExp explicit BaseLogger(StringView category = StringView(), const CallBack & callBack = defaultCallBack);
+        LoggingExp explicit BaseLogger(StringView category = StringView("unspecified"), const CallBack & callBack = defaultCallBack);
 
         explicit BaseLogger(StringView category, LevelConfigs levelsConf, CallBack callBack = defaultCallBack)
             : mLevels(std::move(levelsConf)),
@@ -264,6 +263,13 @@ namespace logging {
          */
         LoggingExp static void defaultThreadSafeCallBack(const BaseLogger * logger, const LogMsg & logMsg);
 
+        /*!
+         * \details Makes timestamp string.
+         * \param [in] format see description of C++ std::strftime function.
+         *                    Maximum string size is 99.
+         */
+        LoggingExp static std::string timeStamp(const std::string & format = "%Y-%m-%d %T");
+
         /// @}
         //---------------------------------------------------------------
         /// @{
@@ -292,12 +298,6 @@ namespace logging {
         bool isTextColorizing() const { return mTextColorizing; }
 
         /*!
-         * \details Enable/Disable printing category before messages.
-         * \param [in] state
-         */
-        void setLogCategoryPrint(const bool state) { mPrintLogCategory = state; }
-
-        /*!
          * \details Set log category name.
          * \param [in] category
          */
@@ -319,7 +319,6 @@ namespace logging {
         CallBack mCallBack = defaultCallBack;
         std::size_t mLevel = LvlDebug;
         bool mTextColorizing = true;
-        bool mPrintLogCategory = true;
 
     };
 
@@ -361,28 +360,28 @@ namespace logging {
         /// @{
 
         explicit LogMessage(const BaseLogger & logger)
-            : LogMessage(&logger, StringView(), StringView(), StringView(), 0) {}
+            : LogMessage(&logger, StringView("unspecified"), StringView("unspecified"), StringView("unspecified"), 0) {}
 
         explicit LogMessage(const BaseLogger * logger)
-            : LogMessage(logger, StringView(), StringView(), StringView(), 0) {}
+            : LogMessage(logger, StringView("unspecified"), StringView("unspecified"), StringView("unspecified"), 0) {}
 
         LogMessage(const BaseLogger & logger, const StringView category)
-            : LogMessage(&logger, category, StringView(), StringView(), 0) {}
+            : LogMessage(&logger, category, StringView("unspecified"), StringView("unspecified"), 0) {}
 
         LogMessage(const BaseLogger * logger, const StringView category)
-            : LogMessage(logger, category, StringView(), StringView(), 0) {}
+            : LogMessage(logger, category, StringView("unspecified"), StringView("unspecified"), 0) {}
 
         LogMessage(const BaseLogger & logger, const StringView function, const StringView file, const int line)
-            : LogMessage(&logger, StringView(), function, file, line) {}
+            : LogMessage(&logger, StringView("unspecified"), function, file, line) {}
 
         LogMessage(const BaseLogger * logger, const StringView function, const StringView file, const int line)
-            : LogMessage(logger, StringView(), function, file, line) {}
+            : LogMessage(logger, StringView("unspecified"), function, file, line) {}
 
         LogMessage(const BaseLogger & logger, const StringView category, const StringView function, const StringView file, const int line)
             : LogMessage(&logger, category, function, file, line) {}
 
         LogMessage(const BaseLogger * logger, const StringView category, const StringView function, const StringView file, const int line)
-            : mLogMsg(BaseLogger::LvlMsg, category, StringView(), function, file, line, true, true, true),
+            : mLogMsg(BaseLogger::LvlMsg, category, StringView(), function, file, line),
               mLog(logger) {
             assert(mLog);
         }
@@ -487,45 +486,6 @@ namespace logging {
 
         LogMessage & setFileLine(const int line) {
             mLogMsg.mLine = line;
-            return *this;
-        }
-
-        /// @}
-        //---------------------------------------------------------------
-        /// @{
-
-        /*!
-         * \brief Turns off printing eol after the message.
-         */
-        LogMessage & noEol() {
-            mLogMsg.mIsPrintEol = false;
-            return *this;
-        }
-
-        /*!
-         * \brief Turns off printing label before the message.
-         */
-        LogMessage & noLabel() {
-            mLogMsg.mIsPrintLabel = false;
-            return *this;
-        }
-
-        /*!
-         * \brief Turns off printing category before the message.
-         * \details It doesn't remove category and your callback still will see it.
-         */
-        LogMessage & noCategory() {
-            mLogMsg.mIsPrintCategory = false;
-            return *this;
-        }
-
-        /*!
-         * \brief Turns off eol, label, category..
-         */
-        LogMessage & noDecor() {
-            noEol();
-            noLabel();
-            noCategory();
             return *this;
         }
 

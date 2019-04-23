@@ -49,31 +49,31 @@ namespace logging {
                          {
                                  {
                                      LvlDebug,
-                                     LevelConfig({&std::cout}, "DBG: ", "%LB %LC %MC %MS", colorize::magenta)
+                                     LevelConfig({&std::cout}, "DBG:", "%LB %LC %MC %MS", colorize::magenta)
                                  },
                                  {
                                      LvlMsg,
-                                     LevelConfig({&std::cout}, "-- ", "%LB %LC %MC %MS", nullptr)
+                                     LevelConfig({&std::cout}, "--", "%LB %LC %MC %MS", nullptr)
                                  },
                                  {
                                      LvlInfo,
-                                     LevelConfig({&std::cout}, "INF: ", "%LB %LC %MC %MS", colorize::cyan)
+                                     LevelConfig({&std::cout}, "INF:", "%LB %LC %MC %MS", colorize::cyan)
                                  },
                                  {
                                      LvlSuccess,
-                                     LevelConfig({&std::cout}, "INF: ", "%LB %LC %MC %MS", colorize::green)
+                                     LevelConfig({&std::cout}, "INF:", "%LB %LC %MC %MS", colorize::green)
                                  },
                                  {
                                      LvlWarning,
-                                     LevelConfig({&std::cout}, "WRN: ", "%LB %LC %MC %MS", colorize::yellow)
+                                     LevelConfig({&std::cout}, "WRN:", "%LB %LC %MC %MS", colorize::yellow)
                                  },
                                  {
                                      LvlError,
-                                     LevelConfig({&std::cerr}, "ERR: ", "%LB %LC %MC [%TM(%Y-%m-%d %T)] %MS \n\t[%FN -> %FI(%LI)]", colorize::red)
+                                     LevelConfig({&std::cerr}, "ERR:", "%LB %LC %MC [%TM(%Y-%m-%d %T)] %MS \n\t[%FN -> %FI(%LI)]", colorize::red)
                                  },
                                  {
                                      LvlCritical,
-                                     LevelConfig({&std::cerr}, "CRL: ", "%LB %LC %MC [%TM(%Y-%m-%d %T)] %MS \n\t[%FN -> %FI(%LI)]", colorize::red)
+                                     LevelConfig({&std::cerr}, "CRL:", "%LB %LC %MC [%TM(%Y-%m-%d %T)] %MS \n\t[%FN -> %FI(%LI)]", colorize::red)
                                  },
                          },
                      callBack) { }
@@ -137,7 +137,7 @@ namespace logging {
     }
 
     void BaseLogger::defaultCallBack(const BaseLogger * logger, const LogMsg & logMsg) {
-        static const LevelConfig defaultLevel({&std::cout}, "UNSPECIFIED LEVEL CONG: ", "%LB %LC %MC %MS \n\t[%FN -> %FI(%LI)]", colorize::yellow);
+        static const LevelConfig defaultLevel({&std::cout}, "UNSPECIFIED LEVEL CONG:", "%LB %LC %MC %MS \n\t[%FN -> %FI(%LI)]", colorize::yellow);
 
         const std::uint32_t time = ('T' << 8) | 'M';
         const std::uint32_t label = ('L' << 8) | 'B';

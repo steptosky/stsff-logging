@@ -165,7 +165,7 @@ namespace logging {
         //---------------------------------------------------------------
         /// @{
 
-        LoggingExp explicit BaseLogger(StringView category = StringView(), const CallBack & callBack = defaultCallBack);
+        LoggingExp explicit BaseLogger(StringView category = StringView("unspecified"), const CallBack & callBack = defaultCallBack);
 
         explicit BaseLogger(StringView category, LevelConfigs levelsConf, CallBack callBack = defaultCallBack)
             : mLevels(std::move(levelsConf)),
@@ -362,10 +362,10 @@ namespace logging {
         /// @{
 
         explicit LogMessage(const BaseLogger & logger)
-            : LogMessage(&logger, StringView(), StringView("unspecified"), StringView("unspecified"), 0) {}
+            : LogMessage(&logger, StringView("unspecified"), StringView("unspecified"), StringView("unspecified"), 0) {}
 
         explicit LogMessage(const BaseLogger * logger)
-            : LogMessage(logger, StringView(), StringView("unspecified"), StringView("unspecified"), 0) {}
+            : LogMessage(logger, StringView("unspecified"), StringView("unspecified"), StringView("unspecified"), 0) {}
 
         LogMessage(const BaseLogger & logger, const StringView category)
             : LogMessage(&logger, category, StringView("unspecified"), StringView("unspecified"), 0) {}
@@ -374,10 +374,10 @@ namespace logging {
             : LogMessage(logger, category, StringView("unspecified"), StringView("unspecified"), 0) {}
 
         LogMessage(const BaseLogger & logger, const StringView function, const StringView file, const int line)
-            : LogMessage(&logger, StringView(), function, file, line) {}
+            : LogMessage(&logger, StringView("unspecified"), function, file, line) {}
 
         LogMessage(const BaseLogger * logger, const StringView function, const StringView file, const int line)
-            : LogMessage(logger, StringView(), function, file, line) {}
+            : LogMessage(logger, StringView("unspecified"), function, file, line) {}
 
         LogMessage(const BaseLogger & logger, const StringView category, const StringView function, const StringView file, const int line)
             : LogMessage(&logger, category, function, file, line) {}

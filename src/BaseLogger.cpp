@@ -258,7 +258,7 @@ namespace logging {
                     }
                     ++ch; // skip '('
                     std::size_t length = 0;
-                    auto endOfTimeFormat = std::find_if(ch, levelConf->mFormatting.end(), [&](auto c) {
+                    auto endOfTimeFormat = std::find_if(ch, levelConf->mFormatting.end(), [&](const char c) {
                         ++length;
                         return c == ')';
                     });

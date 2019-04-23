@@ -211,17 +211,19 @@ namespace logging {
 
             switch (command) {
                 case label: {
-                    if (logMsg.mIsPrintLabel) { for (auto & s : *streams) { *s << levelConf->mLabel; } }
+                    if (!levelConf->mLabel.empty()) {
+                        for (auto & s : *streams) { s->write(levelConf->mLabel.data(), levelConf->mLabel.size()); }
+                    }
                     break;
                 }
                 case logCategory: {
-                    if (logger->mPrintLogCategory && logMsg.mIsPrintCategory && !logger->mCategory.empty()) {
+                    if (!logger->mCategory.empty()) {
                         for (auto & s : *streams) { s->write(logger->mCategory.data(), logger->mCategory.size()); }
                     }
                     break;
                 }
                 case messageCategory: {
-                    if (logMsg.mIsPrintCategory && !logMsg.mCategory.empty()) {
+                    if (!logMsg.mCategory.empty()) {
                         for (auto & s : *streams) { s->write(logMsg.mCategory.data(), logMsg.mCategory.size()); }
                     }
                     break;
@@ -289,10 +291,6 @@ namespace logging {
                     }
                 }
             }
-        }
-
-        if (logMsg.mIsPrintEol) {
-            for (auto & s : *streams) { *s << std::endl; }
         }
     }
 

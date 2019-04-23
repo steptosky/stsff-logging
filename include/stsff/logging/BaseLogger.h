@@ -50,7 +50,7 @@ namespace logging {
      * \details Default log level is \"LvlDebug\".
      * \details Default callback is \link BaseLogger::defaultCallBack \endlink
      * \details The logger supports categories for logger and messages.
-     * \code \link logger->setLogCategoryPrint("my logger category") \endlink; \endcode
+     * \code \link logger->setLogCategoryName("my logger category") \endlink; \endcode
      * \code LCategoryMessage(logger, "my message category") << "my message"; \endcode
      * \note You can define log printing for your own types. \see \link LogMessage \endlink
      * \note You can define your own levels as this is just std::size_t.
@@ -88,27 +88,20 @@ namespace logging {
          */
         struct LogMsg {
             LogMsg(const std::size_t lvl, const StringView category, const StringView msg,
-                   const StringView fn, const StringView fl, const int ln,
-                   const bool printEol, const bool printLabel, const bool printCategory)
+                   const StringView fn, const StringView fl, const int ln)
                 : mCategory(category),
                   mMsg(msg),
                   mFunction(fn),
                   mFile(fl),
                   mLevel(lvl),
-                  mLine(ln),
-                  mIsPrintEol(printEol),
-                  mIsPrintLabel(printLabel),
-                  mIsPrintCategory(printCategory) {}
+                  mLine(ln) {}
 
-            StringView mCategory;  //!< message category.
-            StringView mMsg;       //!< message itself.
-            StringView mFunction;  //!< function name.
-            StringView mFile;      //!< source file name.
-            std::size_t mLevel;    //!< level of current message.
-            int mLine;             //!< source line number.
-            bool mIsPrintEol;      //!< enable/disable printing end of line at the message end.
-            bool mIsPrintLabel;    //!< enable/disable printing label like [ERROR, WARNING, etc...].
-            bool mIsPrintCategory; //!< enable/disable printing message category.
+            StringView mCategory; //!< message category.
+            StringView mMsg;      //!< message itself.
+            StringView mFunction; //!< function name.
+            StringView mFile;     //!< source file name.
+            std::size_t mLevel;   //!< level of current message.
+            int mLine;            //!< source line number.
         };
 
         //---------------------------------------------------------------
@@ -300,12 +293,6 @@ namespace logging {
         bool isTextColorizing() const { return mTextColorizing; }
 
         /*!
-         * \details Enable/Disable printing category before messages.
-         * \param [in] state
-         */
-        void setLogCategoryPrint(const bool state) { mPrintLogCategory = state; }
-
-        /*!
          * \details Set log category name.
          * \param [in] category
          */
@@ -327,7 +314,6 @@ namespace logging {
         CallBack mCallBack = defaultCallBack;
         std::size_t mLevel = LvlDebug;
         bool mTextColorizing = true;
-        bool mPrintLogCategory = true;
 
     };
 
@@ -390,7 +376,7 @@ namespace logging {
             : LogMessage(&logger, category, function, file, line) {}
 
         LogMessage(const BaseLogger * logger, const StringView category, const StringView function, const StringView file, const int line)
-            : mLogMsg(BaseLogger::LvlMsg, category, StringView(), function, file, line, true, true, true),
+            : mLogMsg(BaseLogger::LvlMsg, category, StringView(), function, file, line),
               mLog(logger) {
             assert(mLog);
         }
@@ -495,45 +481,6 @@ namespace logging {
 
         LogMessage & setFileLine(const int line) {
             mLogMsg.mLine = line;
-            return *this;
-        }
-
-        /// @}
-        //---------------------------------------------------------------
-        /// @{
-
-        /*!
-         * \brief Turns off printing eol after the message.
-         */
-        LogMessage & noEol() {
-            mLogMsg.mIsPrintEol = false;
-            return *this;
-        }
-
-        /*!
-         * \brief Turns off printing label before the message.
-         */
-        LogMessage & noLabel() {
-            mLogMsg.mIsPrintLabel = false;
-            return *this;
-        }
-
-        /*!
-         * \brief Turns off printing category before the message.
-         * \details It doesn't remove category and your callback still will see it.
-         */
-        LogMessage & noCategory() {
-            mLogMsg.mIsPrintCategory = false;
-            return *this;
-        }
-
-        /*!
-         * \brief Turns off eol, label, category..
-         */
-        LogMessage & noDecor() {
-            noEol();
-            noLabel();
-            noCategory();
             return *this;
         }
 

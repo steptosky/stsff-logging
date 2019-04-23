@@ -86,20 +86,20 @@ TEST(BaseLogger, forrmating) {
     EXPECT_STREQ("ERR: [logger] [category] message \n\t[function -> file(5)]\n", callback.result().c_str());
 }
 
-TEST(BaseLogger, forrmating_no_log_category) {
-    BaseLoggerCallback clbk;
-    BaseLogger logger("[logger]");
-    clbk.setupLevels(&logger);
-    //---------------
-    clbk.clear();
-    LogMessage(logger, "[category]", "function", "file", 5).error() << "message" << LPush;
-    ASSERT_STREQ("ERR: [logger] [category] message \n\t[function -> file(5)]\n", clbk.result().c_str());
-    //---------------
-    clbk.clear();
-    logger.setLogCategoryPrint(false);
-    LogMessage(logger, "[category]", "function", "file", 5).error() << "message" << LPush;
-    ASSERT_STREQ("ERR: [category] message \n\t[function -> file(5)]\n", clbk.result().c_str());
-}
+// TEST(BaseLogger, forrmating_no_log_category) {
+//     BaseLoggerCallback clbk;
+//     BaseLogger logger("[logger]");
+//     clbk.setupLevels(&logger);
+//     //---------------
+//     clbk.clear();
+//     LogMessage(logger, "[category]", "function", "file", 5).error() << "message" << LPush;
+//     ASSERT_STREQ("ERR: [logger] [category] message \n\t[function -> file(5)]\n", clbk.result().c_str());
+//     //---------------
+//     clbk.clear();
+//     logger.setLogCategoryPrint(false);
+//     LogMessage(logger, "[category]", "function", "file", 5).error() << "message" << LPush;
+//     ASSERT_STREQ("ERR: [category] message \n\t[function -> file(5)]\n", clbk.result().c_str());
+// }
 
 TEST(BaseLogger, forrmating_level_default_labels) {
     BaseLoggerCallback clbk;
@@ -322,44 +322,44 @@ TEST(LogMessage, abort) {
     ASSERT_STREQ("", clbk.result().c_str());
 }
 
-TEST(LogMessage, forrmating_no_eol) {
-    BaseLoggerCallback clbk;
-    BaseLogger logger;
-    clbk.setupLevels(&logger);
-    //---------------
-    LMessage(logger) << "message" << LPush;
-    ASSERT_STREQ("-- message\n", clbk.result().c_str());
-    //---------------
-    clbk.clear();
-    LMessage(logger).noEol() << "message";
-    ASSERT_STREQ("-- message", clbk.result().c_str());
-}
+// TEST(LogMessage, forrmating_no_eol) {
+//     BaseLoggerCallback clbk;
+//     BaseLogger logger;
+//     clbk.setupLevels(&logger);
+//     //---------------
+//     LMessage(logger) << "message" << LPush;
+//     ASSERT_STREQ("-- message\n", clbk.result().c_str());
+//     //---------------
+//     clbk.clear();
+//     LMessage(logger).noEol() << "message";
+//     ASSERT_STREQ("-- message", clbk.result().c_str());
+// }
 
-TEST(LogMessage, forrmating_no_category) {
-    BaseLoggerCallback clbk;
-    BaseLogger logger("[logger]");
-    clbk.setupLevels(&logger);
-    //---------------
-    LCatMessage(logger,"[category]") << "message" << LPush;
-    ASSERT_STREQ("-- [logger] [category] message\n", clbk.result().c_str());
-    //---------------
-    clbk.clear();
-    LCatMessage(logger, "[category]").noCategory() << "message";
-    ASSERT_STREQ("-- message\n", clbk.result().c_str());
-}
+// TEST(LogMessage, forrmating_no_category) {
+//     BaseLoggerCallback clbk;
+//     BaseLogger logger("[logger]");
+//     clbk.setupLevels(&logger);
+//     //---------------
+//     LCatMessage(logger,"[category]") << "message" << LPush;
+//     ASSERT_STREQ("-- [logger] [category] message\n", clbk.result().c_str());
+//     //---------------
+//     clbk.clear();
+//     LCatMessage(logger, "[category]").noCategory() << "message";
+//     ASSERT_STREQ("-- message\n", clbk.result().c_str());
+// }
 
-TEST(LogMessage, forrmating_no_label) {
-    BaseLoggerCallback clbk;
-    BaseLogger logger;
-    clbk.setupLevels(&logger);
-    //---------------
-    LCatMessage(logger, "[category]") << "message" << LPush;
-    ASSERT_STREQ("-- [category] message\n", clbk.result().c_str());
-    //---------------
-    clbk.clear();
-    LCatMessage(logger, "[category]").noLabel() << "message";
-    ASSERT_STREQ("[category] message\n", clbk.result().c_str());
-}
+// TEST(LogMessage, forrmating_no_label) {
+//     BaseLoggerCallback clbk;
+//     BaseLogger logger;
+//     clbk.setupLevels(&logger);
+//     //---------------
+//     LCatMessage(logger, "[category]") << "message" << LPush;
+//     ASSERT_STREQ("-- [category] message\n", clbk.result().c_str());
+//     //---------------
+//     clbk.clear();
+//     LCatMessage(logger, "[category]").noLabel() << "message";
+//     ASSERT_STREQ("[category] message\n", clbk.result().c_str());
+// }
 
 /**************************************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////////////////////////

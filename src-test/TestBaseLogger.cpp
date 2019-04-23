@@ -173,6 +173,127 @@ TEST(BaseLogger, time_stamp) {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /**************************************************************************************************/
 
+#ifndef NDEBUG
+TEST(BaseLogger, invalid_callback_data_null_stream) {
+    BaseLoggerCallback callback;
+    BaseLogger logger;
+    callback.setupLevels(&logger);
+    logger.setLevelConfig(BaseLogger::LvlMsg, BaseLogger::LevelConfig({nullptr}, "", "%TM(%Y)"));
+    //---------------
+    ASSERT_DEBUG_DEATH(LogMessage(logger).message() << "message" << LPush, "");
+    //---------------
+}
+#endif
+
+TEST(BaseLogger, invalid_callback_data_comman_case1) {
+    BaseLoggerCallback callback;
+    BaseLogger logger;
+    callback.setupLevels(&logger);
+    logger.setLevelConfig(BaseLogger::LvlMsg, BaseLogger::LevelConfig({&callback.stream}, "", "%TG"));
+
+    auto * coutBuff = std::cout.rdbuf();
+    std::cout.rdbuf(callback.stream.rdbuf());
+    try {
+        LogMessage(logger).message() << "message" << LPush;
+        std::cout.rdbuf(coutBuff);
+    }
+    catch (...) {
+        std::cout.rdbuf(coutBuff);
+        throw;
+    }
+    //---------------
+    ASSERT_STREQ(" unknown formatting command: TG\n", callback.result().c_str());
+    //---------------
+}
+
+TEST(BaseLogger, invalid_callback_data_comman_case2) {
+    BaseLoggerCallback callback;
+    BaseLogger logger;
+    callback.setupLevels(&logger);
+    logger.setLevelConfig(BaseLogger::LvlMsg, BaseLogger::LevelConfig({&callback.stream}, "", "%T"));
+
+    auto * coutBuff = std::cout.rdbuf();
+    std::cout.rdbuf(callback.stream.rdbuf());
+    try {
+        LogMessage(logger).message() << "message" << LPush;
+        std::cout.rdbuf(coutBuff);
+    }
+    catch (...) {
+        std::cout.rdbuf(coutBuff);
+        throw;
+    }
+    //---------------
+    ASSERT_STREQ(" unexpected end of formatting string after 'T', expected the second command letter\n", callback.result().c_str());
+    //---------------
+}
+
+TEST(BaseLogger, invalid_callback_data_time_comman_case1) {
+    BaseLoggerCallback callback;
+    BaseLogger logger;
+    callback.setupLevels(&logger);
+    logger.setLevelConfig(BaseLogger::LvlMsg, BaseLogger::LevelConfig({&callback.stream}, "", "%TM"));
+
+    auto * coutBuff = std::cout.rdbuf();
+    std::cout.rdbuf(callback.stream.rdbuf());
+    try {
+        LogMessage(logger).message() << "message" << LPush;
+        std::cout.rdbuf(coutBuff);
+    }
+    catch (...) {
+        std::cout.rdbuf(coutBuff);
+        throw;
+    }
+    //---------------
+    ASSERT_STREQ(" unexpected end of formatting string after the time command, expected '()'\n", callback.result().c_str());
+    //---------------
+}
+
+TEST(BaseLogger, invalid_callback_data_time_comman_case2) {
+    BaseLoggerCallback callback;
+    BaseLogger logger;
+    callback.setupLevels(&logger);
+    logger.setLevelConfig(BaseLogger::LvlMsg, BaseLogger::LevelConfig({&callback.stream}, "", "%TMG"));
+
+    auto * coutBuff = std::cout.rdbuf();
+    std::cout.rdbuf(callback.stream.rdbuf());
+    try {
+        LogMessage(logger).message() << "message" << LPush;
+        std::cout.rdbuf(coutBuff);
+    }
+    catch (...) {
+        std::cout.rdbuf(coutBuff);
+        throw;
+    }
+    //---------------
+    ASSERT_STREQ(" unexpected symbol G after time command, expected '('\n", callback.result().c_str());
+    //---------------
+}
+
+TEST(BaseLogger, invalid_callback_data_time_comman_case3) {
+    BaseLoggerCallback callback;
+    BaseLogger logger;
+    callback.setupLevels(&logger);
+    logger.setLevelConfig(BaseLogger::LvlMsg, BaseLogger::LevelConfig({&callback.stream}, "", "%TM("));
+
+    auto * coutBuff = std::cout.rdbuf();
+    std::cout.rdbuf(callback.stream.rdbuf());
+    try {
+        LogMessage(logger).message() << "message" << LPush;
+        std::cout.rdbuf(coutBuff);
+    }
+    catch (...) {
+        std::cout.rdbuf(coutBuff);
+        throw;
+    }
+    //---------------
+    ASSERT_STREQ(" unexpected end of formatting string after the time command, missed ')'\n", callback.result().c_str());
+    //---------------
+}
+
+/**************************************************************************************************/
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/**************************************************************************************************/
+
 TEST(BaseLogger, threadsafe_simple_test) {
     BaseLoggerCallback callback;
     BaseLogger logger;

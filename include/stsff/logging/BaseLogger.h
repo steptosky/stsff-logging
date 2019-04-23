@@ -31,10 +31,12 @@
 */
 
 #include <cassert>
+#include <iostream>
 #include <sstream>
 #include <functional>
 #include <unordered_map>
 #include <limits>
+#include <vector>
 #include "internal/InternalUtils.h"
 
 /**************************************************************************************************/

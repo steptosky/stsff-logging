@@ -30,7 +30,6 @@
 
 #include "stdafx.h"
 
-#include <iostream>
 #include <mutex>
 #include <ctime>
 #include <algorithm>

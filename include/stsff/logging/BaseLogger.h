@@ -113,8 +113,7 @@ namespace logging {
          * \details It allows you to adjust each level as you wish.
          * \details It supports multistream printing and formatting message.
          * \details Setup example:
-         *          \code  LevelConfig({&std::cout}, "ERR: ", "%LB [%TM(%Y-%m-%d %T)] %LC %MC %MS \n\t[%FN -> %FI(%LI)]", colorize::red) \endcode
-         *          \li \%LB - label, like error/debug/warning etc...
+         *          \code  LevelConfig({&std::cout}, "ERR: ", "ERR: %LC %MC [%TM(%Y-%m-%d %T)] %MS \n\t[%FN -> %FI(%LI)]", colorize::red) \endcode
          *          \li \%TM - time that takes format string for the std::strftime function inside brackets.
          *          \li \%LC - log category.
          *          \li \%MC - message category.
@@ -127,11 +126,9 @@ namespace logging {
         struct LevelConfig {
             typedef std::ostream &(*ColorFn)(std::ostream &);
 
-            explicit LevelConfig(std::vector<std::ostream *> streams, std::string label,
-                                 std::string formatting, const ColorFn color = nullptr)
+            explicit LevelConfig(std::vector<std::ostream *> streams, std::string formatting, const ColorFn color = nullptr)
                 : mStreams(std::move(streams)),
                   mFormatting(std::move(formatting)),
-                  mLabel(std::move(label)),
                   mColor(color) {}
 
             LevelConfig(const LevelConfig &) = default;
@@ -144,7 +141,6 @@ namespace logging {
 
             std::vector<std::ostream *> mStreams; //!< stream where the level will be printed.
             std::string mFormatting;              //!< message formatting
-            std::string mLabel;                   //!< label like [ERROR, WARNING, etc...]
             ColorFn mColor;                       //!< text color in terminal.
         };
 

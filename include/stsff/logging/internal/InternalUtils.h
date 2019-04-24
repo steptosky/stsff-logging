@@ -32,6 +32,7 @@
 
 #include "stsff/logging/Export.h"
 #include <cstddef>
+#include <string>
 
 /**************************************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -118,14 +119,12 @@ namespace logging {
 
             LoggingExp CustStringView(const char * data);
 
+            explicit CustStringView(const std::string & str)
+                : CustStringView(str.data(), str.size()) {}
+
             CustStringView(const char * data, const std::size_t size)
                 : mData(data),
                   mSize(size) {}
-
-            CustStringView & operator=(const char * data) {
-                *this = CustStringView(data);
-                return *this;
-            }
 
             CustStringView & operator=(const CustStringView & other) = default;
 

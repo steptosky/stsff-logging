@@ -123,7 +123,7 @@ TEST(BaseLogger, formatting_level) {
 }
 
 #ifdef NDEBUG // 'Only file name' is enabled in release mode
-TEST(BaseLogger, formatting_sources_only_filename) {
+TEST(BaseLogger, formatting_sources_only_filename_case1) {
     BaseLoggerCallback callback;
     BaseLogger logger;
     callback.setupLevels(&logger);
@@ -134,6 +134,17 @@ TEST(BaseLogger, formatting_sources_only_filename) {
         return v == '\\' || v == '/';
     });
     ASSERT_TRUE(it == result.end());
+}
+
+TEST(BaseLogger, formatting_sources_only_filename_case2) {
+    BaseLoggerCallback callback;
+    BaseLogger logger;
+    callback.setupLevels(&logger);
+    logger.levelConfig(BaseLogger::LvlMsg)->mFormatting = "%FI";
+    //---------------
+    LMessage(logger) << "message" << LPush;
+    auto result = callback.result();
+    ASSERT_STREQ("TestBaseLogger.cpp\n", result.c_str());
 }
 #endif
 

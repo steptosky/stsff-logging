@@ -144,7 +144,7 @@ TEST(BaseLogger, formatting_sources_only_filename_case2) {
     //---------------
     LMessage(logger) << "message" << LPush;
     auto result = callback.result();
-    ASSERT_STREQ("TestBaseLogger.cpp\n", result.c_str());
+    ASSERT_STRCASEEQ("TestBaseLogger.cpp\n", result.c_str());
 }
 #endif
 

@@ -73,11 +73,12 @@ namespace logging {
         enum eLevel : std::size_t {
             LvlCritical = 100,
             LvlError = 200,
-            LvlWarning = 300,
-            LvlSuccess = 400,
-            LvlInfo = 500,
-            LvlMsg = 600,
-            LvlDebug = 700,
+            LvlFail = 300,
+            LvlWarning = 400,
+            LvlSuccess = 500,
+            LvlInfo = 600,
+            LvlMsg = 700,
+            LvlDebug = 800,
         };
 
         /// @}
@@ -414,40 +415,14 @@ namespace logging {
             return *this;
         }
 
-        LogMessage & debug() {
-            mLogMsg.mLevel = BaseLogger::LvlDebug;
-            return *this;
-        }
-
-        LogMessage & warning() {
-            mLogMsg.mLevel = BaseLogger::LvlWarning;
-            return *this;
-        }
-
-        LogMessage & error() {
-            mLogMsg.mLevel = BaseLogger::LvlError;
-            return *this;
-        }
-
-        LogMessage & critical() {
-            mLogMsg.mLevel = BaseLogger::LvlCritical;
-            return *this;
-        }
-
-        LogMessage & success() {
-            mLogMsg.mLevel = BaseLogger::LvlSuccess;
-            return *this;
-        }
-
-        LogMessage & info() {
-            mLogMsg.mLevel = BaseLogger::LvlInfo;
-            return *this;
-        }
-
-        LogMessage & message() {
-            mLogMsg.mLevel = BaseLogger::LvlMsg;
-            return *this;
-        }
+        LogMessage & critical() { return level(static_cast<std::size_t>(BaseLogger::LvlCritical)); }
+        LogMessage & error() { return level(static_cast<std::size_t>(BaseLogger::LvlError)); }
+        LogMessage & fail() { return level(static_cast<std::size_t>(BaseLogger::LvlFail)); }
+        LogMessage & warning() { return level(static_cast<std::size_t>(BaseLogger::LvlWarning)); }
+        LogMessage & success() { return level(static_cast<std::size_t>(BaseLogger::LvlSuccess)); }
+        LogMessage & info() { return level(static_cast<std::size_t>(BaseLogger::LvlInfo)); }
+        LogMessage & message() { return level(static_cast<std::size_t>(BaseLogger::LvlMsg)); }
+        LogMessage & debug() { return level(static_cast<std::size_t>(BaseLogger::LvlDebug)); }
 
         /// @}
         //---------------------------------------------------------------
@@ -526,6 +501,7 @@ namespace logging {
 // Log messages                 
 #   define LCritical(L)       stsff::logging::LogMessage(L, __STS_FUNC_NAME__,  stsff::logging::internal::fileName(__FILE__), __LINE__).critical()
 #   define LError(L)          stsff::logging::LogMessage(L, __STS_FUNC_NAME__,  stsff::logging::internal::fileName(__FILE__), __LINE__).error()
+#   define LFail(L)           stsff::logging::LogMessage(L, __STS_FUNC_NAME__,  stsff::logging::internal::fileName(__FILE__), __LINE__).fail()
 #   define LWarning(L)        stsff::logging::LogMessage(L, __STS_FUNC_NAME__,  stsff::logging::internal::fileName(__FILE__), __LINE__).warning()
 #   define LSuccess(L)        stsff::logging::LogMessage(L, __STS_FUNC_NAME__,  stsff::logging::internal::fileName(__FILE__), __LINE__).success()
 #   define LInfo(L)           stsff::logging::LogMessage(L, __STS_FUNC_NAME__,  stsff::logging::internal::fileName(__FILE__), __LINE__).info()

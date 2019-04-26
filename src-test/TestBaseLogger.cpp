@@ -144,6 +144,7 @@ TEST(BaseLogger, colorize) {
     LInfo(logger) << "info message" << LPush;
     LSuccess(logger) << "info success message" << LPush;
     LWarning(logger) << "warning message" << LPush;
+    LFail(logger) << "fail message" << LPush;
     LError(logger) << "error message" << LPush;
     LCritical(logger) << "critical message" << LPush;
 }

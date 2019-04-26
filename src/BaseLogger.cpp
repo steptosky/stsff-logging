@@ -60,11 +60,15 @@ namespace logging {
                                  },
                                  {
                                      LvlSuccess,
-                                     LevelConfig({&std::cout}, "INF: %LC %MS", colorize::green)
+                                     LevelConfig({&std::cout}, "INF: %LC %MS | OK", colorize::green)
                                  },
                                  {
                                      LvlWarning,
                                      LevelConfig({&std::cout}, "WRN: %LC %MS", colorize::yellow)
+                                 },
+                                 {
+                                     LvlFail,
+                                     LevelConfig({&std::cerr}, "ERR: %LC [%TM(%Y-%m-%d %T)] %MS | FAIL\n\t[%FN -> %FI(%LI)]", colorize::red)
                                  },
                                  {
                                      LvlError,

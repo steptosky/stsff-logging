@@ -496,7 +496,7 @@ namespace logging {
 #ifndef STSFF_LOGGER_DONT_USE_MACROS
 
 // Just creates LogMessage variable and you can use it then 
-#   define LCustomVar(VAR,L)  stsff::logging::LogMessage VAR(L, __STS_FUNC_NAME__, __FILE__, __LINE__)
+#   define LVar(VAR,L)  stsff::logging::LogMessage VAR(L, __STS_FUNC_NAME__, __FILE__, __LINE__);VAR
 
 // Log messages                 
 #   define LCritical(L)       stsff::logging::LogMessage(L, __STS_FUNC_NAME__,  stsff::logging::internal::fileName(__FILE__), __LINE__).critical()

@@ -139,6 +139,7 @@ TEST(BaseLogger, formatting_sources_only_filename) {
 
 TEST(BaseLogger, colorize) {
     const BaseLogger logger;
+    LVar(logMsg, logger).message() << "custom var message" << LPush;
     LDebug(logger) << "debug message" << LPush;
     LMessage(logger) << "just a message" << LPush;
     LInfo(logger) << "info message" << LPush;

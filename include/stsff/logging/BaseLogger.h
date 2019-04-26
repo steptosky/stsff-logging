@@ -508,6 +508,7 @@ namespace logging {
 #   define LMessage(L)        stsff::logging::LogMessage(L, __STS_FUNC_NAME__,  stsff::logging::internal::fileName(__FILE__), __LINE__).message()
 #   define LDebug(L)          stsff::logging::LogMessage(L, __STS_FUNC_NAME__,  stsff::logging::internal::fileName(__FILE__), __LINE__).debug()
 #   define LLevel(L,LVL)      stsff::logging::LogMessage(L, __STS_FUNC_NAME__,  stsff::logging::internal::fileName(__FILE__), __LINE__).level(LVL)
+#   define LTimeStamp(F)      stsff::logging::BaseLogger::timeStamp(F)
 
 // Force push
 #   define LPush stsff::logging::LogMessage::CmdPush()

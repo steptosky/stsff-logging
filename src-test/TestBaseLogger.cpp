@@ -156,7 +156,7 @@ TEST(BaseLogger, time_stamp) {
     logger.setLevelConfig(BaseLogger::LvlMsg, BaseLogger::LevelConfig({&callback.stream}, "%TM(%Y)"));
     //---------------
     LogMessage(logger).message() << "message" << LPush;
-    EXPECT_STREQ(BaseLogger::timeStamp("%Y\n").c_str(), callback.result().c_str());
+    EXPECT_STREQ(LTimeStamp("%Y\n").c_str(), callback.result().c_str());
     //---------------
 }
 

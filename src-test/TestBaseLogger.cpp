@@ -67,25 +67,25 @@ TEST(BaseLogger, formatting) {
     BaseLoggerCallback callback;
     BaseLogger logger("log-category");
     callback.setupLevels(&logger);
-    logger.levelConfig(BaseLogger::LvlMsg)->mFormatting = "%LC,%MS,%FN,%FI,%LI";
+    logger.levelConfig(BaseLogger::LvlMsg)->mFormatting = "%LC,%MC,%MS,%FN,%FI,%LI";
     //---------------
     callback.clear();
-    LogMessage(logger).message() << "message" << LPush;
-    EXPECT_STREQ("log-category,message,,,0\n", callback.result().c_str());
+    LogMessage(logger).message().category("msg-cat") << "message" << LPush;
+    EXPECT_STREQ("log-category,msg-cat,message,,,0\n", callback.result().c_str());
     //---------------
     callback.clear();
     LogMessage(logger, "function", "file", 5).message() << "message" << LPush;
-    EXPECT_STREQ("log-category,message,function,file,5\n", callback.result().c_str());
+    EXPECT_STREQ("log-category,,message,function,file,5\n", callback.result().c_str());
 }
 
 TEST(BaseLogger, formatting_custom_level) {
     BaseLoggerCallback callback;
     BaseLogger logger;
     callback.setupLevels(&logger);
-    logger.setLevelConfig(BaseLogger::eLevel(5), BaseLogger::LevelConfig({&callback.stream}, "5,%LC,%MS,%FN,%FI,%LI"));
+    logger.setLevelConfig(BaseLogger::eLevel(5), BaseLogger::LevelConfig({&callback.stream}, "5,%LC,%MC,%MS,%FN,%FI,%LI"));
     //---------------
     LogMessage(logger).level(5) << "message" << LPush;
-    EXPECT_STREQ("5,,message,,,0\n", callback.result().c_str());
+    EXPECT_STREQ("5,,,message,,,0\n", callback.result().c_str());
     //---------------
 }
 
@@ -104,7 +104,7 @@ TEST(BaseLogger, formatting_unknown_level) {
         throw;
     }
     ASSERT_STREQ(" level configuration isn't specified for the level: [25]\n\
-UNSPECIFIED LVL CONF:  message \n\t[ -> (0)]\n", callback.result().c_str());
+UNSPECIFIED LVL CONF:   message \n\t[ -> (0)]\n", callback.result().c_str());
 }
 
 TEST(BaseLogger, formatting_level) {
@@ -119,7 +119,7 @@ TEST(BaseLogger, formatting_level) {
     //---------------
     callback.clear();
     LogMessage(logger).warning() << "message" << LPush;
-    ASSERT_STREQ("WRN:  message\n", callback.result().c_str());
+    ASSERT_STREQ("WRN:   message\n", callback.result().c_str());
 }
 
 #ifdef NDEBUG // 'Only file name' is enabled in release mode
@@ -304,7 +304,7 @@ TEST(BaseLogger, threadsafe_simple_test) {
     logger.setCallBack(BaseLogger::defaultThreadSafeCallBack);
     //---------------
     LogMessage(logger).debug() << "message" << LPush;
-    ASSERT_STREQ("DBG:  message\n", callback.result().c_str());
+    ASSERT_STREQ("DBG:   message\n", callback.result().c_str());
 }
 
 /**************************************************************************************************/

@@ -48,35 +48,35 @@ namespace logging {
                          {
                                  {
                                      LvlDebug,
-                                     LevelConfig({&std::cout}, "DBG: %LC %MS", colorize::magenta)
+                                     LevelConfig({&std::cout}, "DBG: %LC %MC %MS", colorize::magenta)
                                  },
                                  {
                                      LvlMsg,
-                                     LevelConfig({&std::cout}, "--  %LC %MS", nullptr)
+                                     LevelConfig({&std::cout}, "--  %LC %MC %MS", nullptr)
                                  },
                                  {
                                      LvlInfo,
-                                     LevelConfig({&std::cout}, "INF: %LC %MS", colorize::cyan)
+                                     LevelConfig({&std::cout}, "INF: %LC %MC %MS", colorize::cyan)
                                  },
                                  {
                                      LvlSuccess,
-                                     LevelConfig({&std::cout}, "INF: %LC %MS | OK", colorize::green)
+                                     LevelConfig({&std::cout}, "INF: %LC %MC %MS | OK", colorize::green)
                                  },
                                  {
                                      LvlWarning,
-                                     LevelConfig({&std::cout}, "WRN: %LC %MS", colorize::yellow)
+                                     LevelConfig({&std::cout}, "WRN: %LC %MC %MS", colorize::yellow)
                                  },
                                  {
                                      LvlFail,
-                                     LevelConfig({&std::cerr}, "ERR: %LC [%TM(%Y-%m-%d %T)] %MS | FAIL\n\t[%FN -> %FI(%LI)]", colorize::red)
+                                     LevelConfig({&std::cerr}, "ERR: %LC %MC [%TM(%Y-%m-%d %T)] %MS | FAIL\n\t[%FN -> %FI(%LI)]", colorize::red)
                                  },
                                  {
                                      LvlError,
-                                     LevelConfig({&std::cerr}, "ERR: %LC [%TM(%Y-%m-%d %T)] %MS \n\t[%FN -> %FI(%LI)]", colorize::red)
+                                     LevelConfig({&std::cerr}, "ERR: %LC %MC [%TM(%Y-%m-%d %T)] %MS \n\t[%FN -> %FI(%LI)]", colorize::red)
                                  },
                                  {
                                      LvlCritical,
-                                     LevelConfig({&std::cerr}, "CRL: %LC [%TM(%Y-%m-%d %T)] %MS \n\t[%FN -> %FI(%LI)]", colorize::red)
+                                     LevelConfig({&std::cerr}, "CRL: %LC %MC [%TM(%Y-%m-%d %T)] %MS \n\t[%FN -> %FI(%LI)]", colorize::red)
                                  },
                          },
                      callBack) { }
@@ -140,10 +140,11 @@ namespace logging {
     }
 
     void BaseLogger::defaultCallBack(const BaseLogger * logger, const LogMsg & logMsg) {
-        static const LevelConfig defaultLevel({&std::cout}, "UNSPECIFIED LVL CONF: %LC %MS \n\t[%FN -> %FI(%LI)]", colorize::yellow);
+        static const LevelConfig defaultLevel({&std::cout}, "UNSPECIFIED LVL CONF: %LC %MC %MS \n\t[%FN -> %FI(%LI)]", colorize::yellow);
 
         const std::uint32_t time = ('T' << 8) | 'M';
         const std::uint32_t logCategory = ('L' << 8) | 'C';
+        const std::uint32_t messageCategory = ('M' << 8) | 'C';
         const std::uint32_t message = ('M' << 8) | 'S';
         const std::uint32_t functionName = ('F' << 8) | 'N';
         const std::uint32_t fileName = ('F' << 8) | 'I';
@@ -207,6 +208,12 @@ namespace logging {
                 case logCategory: {
                     if (!logger->mCategory.empty()) {
                         for (auto & s : *streams) { s->write(logger->mCategory.data(), logger->mCategory.size()); }
+                    }
+                    break;
+                }
+                case messageCategory: {
+                    if (!logMsg.mCategory.empty()) {
+                        for (auto & s : *streams) { s->write(logMsg.mCategory.data(), logMsg.mCategory.size()); }
                     }
                     break;
                 }

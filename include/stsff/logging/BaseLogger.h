@@ -428,11 +428,20 @@ namespace logging {
         LogMessage & message() { return level(static_cast<std::size_t>(BaseLogger::LvlMsg)); }
         LogMessage & debug() { return level(static_cast<std::size_t>(BaseLogger::LvlDebug)); }
 
+        LogMessage & critical(const StringView category) { return setCategory(category).critical(); }
+        LogMessage & error(const StringView category) { return setCategory(category).error(); }
+        LogMessage & fail(const StringView category) { return setCategory(category).fail(); }
+        LogMessage & warning(const StringView category) { return setCategory(category).warning(); }
+        LogMessage & success(const StringView category) { return setCategory(category).success(); }
+        LogMessage & info(const StringView category) { return setCategory(category).info(); }
+        LogMessage & message(const StringView category) { return setCategory(category).message(); }
+        LogMessage & debug(const StringView category) { return setCategory(category).debug(); }
+
         /// @}
         //---------------------------------------------------------------
         /// @{
 
-        LogMessage & category(const StringView category) {
+        LogMessage & setCategory(const StringView category) {
             mLogMsg.mCategory = category;
             return *this;
         }

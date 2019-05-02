@@ -70,7 +70,7 @@ TEST(BaseLogger, formatting) {
     logger.levelConfig(BaseLogger::LvlMsg)->mFormatting = "%LC,%MC,%MS,%FN,%FI,%LI";
     //---------------
     callback.clear();
-    LogMessage(logger).message("msg-cat") << "message" << LPush;
+    LogMessage(logger).setCategory("msg-cat").message() << "message" << LPush;
     EXPECT_STREQ("log-category,msg-cat,message,,,0\n", callback.result().c_str());
     //---------------
     callback.clear();

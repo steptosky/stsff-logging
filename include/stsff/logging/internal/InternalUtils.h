@@ -91,15 +91,15 @@ namespace logging {
 
         constexpr const char * fileName(const char * str) {
             // c++ 11 doesn't allow declaration variables in constexpr
-        // it is available since 14.
-        // so the code might be:
-        // const char * res1 = strSlant(str, '\\') ? rSlant(strEnd(str), '\\') : str;
-        // const char * res2 = strSlant(res1, '/') ? rSlant(strEnd(res1), '/') : res1;
-        // return res2;
+            // it is available since 14.
+            // so the code might be:
+            // const char * res1 = strSlant(str, '\\') ? rSlant(strEnd(str), '\\') : str;
+            // const char * res2 = strSlant(res1, '/') ? rSlant(strEnd(res1), '/') : res1;
+            // return res2;
 #   if defined(STSFF_LOGGER_OS_MACOS) || defined(STSFF_LOGGER_OS_LINUX)
-                return strSlant(str, '/') ? rSlant(strEnd(str), '/') : str;
+            return strSlant(str, '/') ? rSlant(strEnd(str), '/') : str;
 #   elif defined(STSFF_LOGGER_OS_WINDOWS)
-                return strSlant(str, '\\') ? rSlant(strEnd(str), '\\') : str;
+            return strSlant(str, '\\') ? rSlant(strEnd(str), '\\') : str;
 #   endif
         }
 #endif

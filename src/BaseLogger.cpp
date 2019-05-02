@@ -68,15 +68,15 @@ namespace logging {
                                  },
                                  {
                                      LvlFail,
-                                     LevelConfig({&std::cerr}, "ERR: %LC %MC [%TM(%Y-%m-%d %T)] %MS | FAIL\n\t[%FN -> %FI(%LI)]", colorize::red)
+                                     LevelConfig({&std::cerr}, "ERR: %LC %MC %MS | FAIL\n\t[%TM(%Y-%m-%d] [%T)] [%FN -> %FI(%LI)]", colorize::red)
                                  },
                                  {
                                      LvlError,
-                                     LevelConfig({&std::cerr}, "ERR: %LC %MC [%TM(%Y-%m-%d %T)] %MS \n\t[%FN -> %FI(%LI)]", colorize::red)
+                                     LevelConfig({&std::cerr}, "ERR: %LC %MC %MS \n\t[%TM(%Y-%m-%d] [%T)] [%FN -> %FI(%LI)]", colorize::red)
                                  },
                                  {
                                      LvlCritical,
-                                     LevelConfig({&std::cerr}, "CRL: %LC %MC [%TM(%Y-%m-%d %T)] %MS \n\t[%FN -> %FI(%LI)]", colorize::red)
+                                     LevelConfig({&std::cerr}, "CRL: %LC %MC %MS \n\t[%TM(%Y-%m-%d] [%T)] [%FN -> %FI(%LI)]", colorize::red)
                                  },
                          },
                      callBack) { }

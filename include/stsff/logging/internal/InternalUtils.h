@@ -126,6 +126,10 @@ namespace logging {
                 : mData(data),
                   mSize(size) {}
 
+            template<typename T>
+            CustStringView(const T & str)
+                : CustStringView(str.data(), str.size()) {}
+
             CustStringView & operator=(const CustStringView & other) = default;
 
             /// @}

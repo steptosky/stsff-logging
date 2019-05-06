@@ -9,9 +9,8 @@ set CONAN_USERNAME=stsff
 set CONAN_CHANNEL=testing
 set CONAN_BUILD_TESTING=1
 set CONAN_BUILD_POLICY=outdated
-set CONAN_VISUAL_VERSIONS=15
+set CONAN_VISUAL_VERSIONS=16
 set CONAN_ARCHS=x86_64
-set CTEST_OUTPUT_ON_FAILURE=1
 ::==========================================================
 
 call python build.py

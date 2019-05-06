@@ -8,3 +8,4 @@ vcs_data
 set-conan-user.bat
 include/stsff/logging/Export.h
 include/stsff/logging/Info.h
+msvc-2019/

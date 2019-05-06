@@ -1,6 +1,6 @@
 ::call conan create . stsff/develop ^
 ::     -s compiler="Visual Studio" ^
-::     -s compiler.version=15 ^
+::     -s compiler.version=16 ^
 ::     -s compiler.runtime=MD ^
 ::     -s build_type=Release ^
 ::     -s arch=x86_64 ^
@@ -10,7 +10,7 @@
 ::
 ::call conan create . stsff/develop ^
 ::     -s compiler="Visual Studio" ^
-::     -s compiler.version=15 ^
+::     -s compiler.version=16 ^
 ::     -s compiler.runtime=MDd ^
 ::     -s build_type=Debug ^
 ::     -s arch=x86_64 ^

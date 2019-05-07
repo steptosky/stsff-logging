@@ -73,17 +73,17 @@ namespace logging {
                 {
                     LvlFail,
                     std::bind(defaultHandler, std::placeholders::_1, std::placeholders::_2,
-                              std::vector<std::ostream*>{&std::cout}, "ERR: %LC %MC %MS | FAIL\n\t[%TM(%Y-%m-%d] [%T)] [%FN -> %FI(%LI)]", colorize::red)
+                              std::vector<std::ostream*>{&std::cerr}, "ERR: %LC %MC %MS | FAIL\n\t[%TM(%Y-%m-%d] [%T)] [%FN -> %FI(%LI)]", colorize::red)
                 },
                 {
                     LvlError,
                     std::bind(defaultHandler, std::placeholders::_1, std::placeholders::_2,
-                              std::vector<std::ostream*>{&std::cout}, "ERR: %LC %MC %MS \n\t[%TM(%Y-%m-%d] [%T)] [%FN -> %FI(%LI)]", colorize::red)
+                              std::vector<std::ostream*>{&std::cerr}, "ERR: %LC %MC %MS \n\t[%TM(%Y-%m-%d] [%T)] [%FN -> %FI(%LI)]", colorize::red)
                 },
                 {
                     LvlCritical,
                     std::bind(defaultHandler, std::placeholders::_1, std::placeholders::_2,
-                              std::vector<std::ostream*>{&std::cout}, "ERR: %LC %MC %MS \n\t[%TM(%Y-%m-%d] [%T)] [%FN -> %FI(%LI)]", colorize::red)
+                              std::vector<std::ostream*>{&std::cerr}, "ERR: %LC %MC %MS \n\t[%TM(%Y-%m-%d] [%T)] [%FN -> %FI(%LI)]", colorize::red)
                 },
         }) { }
 

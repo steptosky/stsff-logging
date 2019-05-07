@@ -43,8 +43,8 @@ TEST(Common, sizes) {
 
     std::cout << sizeof(stsff::logging::BaseLogger::StringView) << " - BaseLogger::StringView" << std::endl;
     std::cout << sizeof(stsff::logging::BaseLogger::LogMsg) << " - BaseLogger::LogMsg" << std::endl;
-    std::cout << sizeof(stsff::logging::BaseLogger::LevelConfig) << " - BaseLogger::LevelConfig" << std::endl;
-    std::cout << sizeof(stsff::logging::BaseLogger::LevelConfigs) << " - BaseLogger::LevelConfigs" << std::endl;
+    std::cout << sizeof(stsff::logging::BaseLogger::LevelHandler) << " - BaseLogger::LevelHandler" << std::endl;
+    std::cout << sizeof(stsff::logging::BaseLogger::LevelHandlers) << " - BaseLogger::LevelHandlers" << std::endl;
 
     std::cout << sizeof(std::stringstream) << " - std::stringstream" << std::endl;
     std::cout << sizeof(std::string) << " - std::string" << std::endl;

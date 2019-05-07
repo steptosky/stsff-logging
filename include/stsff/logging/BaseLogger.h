@@ -50,12 +50,21 @@ namespace logging {
      * \brief This is a base logger interface.
      * \details By default it prints all messages to std::cout and std::cerr.
      * \details Default log level is \"LvlDebug\".
-     * \details Default callback is \link BaseLogger::defaultCallBack \endlink
+     * \details Default levels handler is \link BaseLogger::defaultHandler \endlink
      * \details The logger supports categories for logger and messages.
-     * \code \link BaseLogger::setLogCategoryName("my logger category") \endlink; \endcode
-     * \code LMessage(logger).category("my message category") << "my message"; \endcode
+     * \code 
+     * BaseLogger::setLogCategoryName("my logger category");
+     * LMessage(logger).setCategory("my message category") << "my message";
+     * LcMessage(logger, "my message category") << "my message";
+     * \endcode
      * \note You can define log printing for your own types. \see \link LogMessage \endlink
-     * \note You can define your own levels as this is just std::size_t.
+     * \note You can define your own levels and its handler as this is just std::size_t.
+     * \note You can define your own handler for any level with std::bind or lambda.
+     * \code 
+	 * BaseLogger::setHandler(BaseLogger::LvlDebug, std::bind(defaultHandler, std::placeholders::_1, std::placeholders::_2,
+     *                                                        std::vector<std::ostream*>{&std::cout}, 
+     *                                                        "DBG: %LC %MC %MS", colorize::magenta)) 
+     * \endcode
      */
     class BaseLogger {
     public:
@@ -107,56 +116,28 @@ namespace logging {
             int mLine;            //!< source line number.
         };
 
-        //---------------------------------------------------------------
-
-        /*!
-         * \brief Represents log level configuration.
-         * \details It allows you to adjust each level as you wish.
-         * \details It supports multistream printing and formatting message.
-         * \details Setup example:
-         *          \code  LevelConfig({&std::cout}, "ERR: ", "ERR: %LC %MC [%TM(%Y-%m-%d %T)] %MS \n\t[%FN -> %FI(%LI)]", colorize::red) \endcode
-         *          \li \%TM - time that takes format string for the std::strftime function inside brackets.
-         *          \li \%LC - log category.
-         *          \li \%MC - message category.
-         *          \li \%MS - message.
-         *          \li \%FN - function name.
-         *          \li \%FI - file name.
-         *          \li \%LI - file line.
-         * 
-         */
-        struct LevelConfig {
-            typedef std::ostream &(*ColorFn)(std::ostream &);
-
-            explicit LevelConfig(std::vector<std::ostream *> streams, std::string formatting, const ColorFn color = nullptr)
-                : mStreams(std::move(streams)),
-                  mFormatting(std::move(formatting)),
-                  mColor(color) {}
-
-            LevelConfig(const LevelConfig &) = default;
-            LevelConfig(LevelConfig &&) = default;
-
-            ~LevelConfig() = default;
-
-            LevelConfig & operator=(const LevelConfig &) = default;
-            LevelConfig & operator=(LevelConfig &&) = default;
-
-            std::vector<std::ostream *> mStreams; //!< stream where the level will be printed.
-            std::string mFormatting;              //!< message formatting
-            ColorFn mColor;                       //!< text color in terminal.
-        };
-
         /// @}
         //---------------------------------------------------------------
         /// @{
 
         /*!
-         * \see Maps fo the l;og levels configurations.
+         * \details Handler for levels.
          */
-        typedef std::unordered_map<std::size_t, LevelConfig> LevelConfigs;
+        typedef std::function<void(const BaseLogger &, const LogMsg &)> LevelHandler;
 
         /*!
-         * \see BaseLogger::defaultCallBack
-         * \see BaseLogger::defaultThreadSafeCallBack
+         * \details Map fo the log level handlers.
+         */
+        typedef std::unordered_map<std::size_t, LevelHandler> LevelHandlers;
+
+        /*!
+         * \details Color function for streams and for default handlers.
+         */
+        typedef std::ostream & (*ColorFn)(std::ostream &);
+
+        /*!
+         * \see \link BaseLogger::defaultHandler \endlink
+         * \see \link BaseLogger::defaultThreadSafeHandler \endlink
          */
         typedef std::function<void(const BaseLogger * logger, const LogMsg & logMsg)> CallBack;
 
@@ -164,17 +145,11 @@ namespace logging {
         //---------------------------------------------------------------
         /// @{
 
-        LoggingExp explicit BaseLogger(StringView category = StringView(), const CallBack & callBack = defaultCallBack);
+        LoggingExp explicit BaseLogger(StringView category = StringView());
 
-        explicit BaseLogger(StringView category, LevelConfigs levelsConf, CallBack callBack = defaultCallBack)
+        explicit BaseLogger(const StringView category, LevelHandlers levelsConf)
             : mLevels(std::move(levelsConf)),
-              mCategory(category.data(), category.size()),
-              mCallBack(std::move(callBack)) {}
-
-        explicit BaseLogger(LevelConfigs levelsConf, StringView category = StringView(), CallBack callBack = defaultCallBack)
-            : mLevels(std::move(levelsConf)),
-              mCategory(category.data(), category.size()),
-              mCallBack(std::move(callBack)) {}
+              mCategory(category.data(), category.size()) {}
 
         virtual ~BaseLogger() = default;
 
@@ -192,84 +167,30 @@ namespace logging {
          * \details Usually developers should not call this method directly.
          * \param [in] logMsg
          */
-        void log(const LogMsg & logMsg) const {
-            if (logMsg.mLevel <= mLevel) {
-                mCallBack(this, logMsg);
-            }
-        }
+        LoggingExp void log(const LogMsg & logMsg) const;
 
         /// @}
         //---------------------------------------------------------------
         /// @{
 
         /*!
-         * \details Set level configuration by id.
+         * \details Set level's handler.
          * \param [in] level
-         * \param [in] conf
+         * \param [in] handler
          */
-        LoggingExp void setLevelConfig(std::size_t level, const LevelConfig & conf);
+        LoggingExp void setHandler(std::size_t level, const LevelHandler & handler);
 
         /*!
-         * \details Get the level configurations map.
-         * \return level configurations map.
+         * \details Get the levels handler map.
+         * \return levels handler map.
          */
-        const LevelConfigs & levelConfigs() const { return mLevels; }
+        const LevelHandlers & handlers() const { return mLevels; }
 
         /*!
-         * \details Get the level configurations map.
-         * \return level configurations map.
+         * \details Get the levels handler map
+         * \return levels handler map.
          */
-        LevelConfigs & levelConfigs() { return mLevels; }
-
-        /*!
-         * \details Get the level configuration by its id.
-         * \param [in] level 
-         * \return nullptr if specified level isn't found otherwise the pointer to config.
-         */
-        LoggingExp const LevelConfig * levelConfig(std::size_t level) const;
-
-        /*!
-         * \details Get the level configuration by its id.
-         * \param [in] level
-         * \return nullptr if specified level isn't found otherwise the pointer to config.
-         */
-        LoggingExp LevelConfig * levelConfig(std::size_t level);
-
-        /// @}
-        //---------------------------------------------------------------
-        /// @{
-
-        /*!
-         * \details Set current function for log printing.
-         * \see BaseLogger::defaultCallBack
-         * \see BaseLogger::defaultThreadSafeCallBack
-         * \param [in] callBack
-         */
-        void setCallBack(const CallBack & callBack) { mCallBack = callBack; }
-
-        /// @}
-        //---------------------------------------------------------------
-        /// @{
-
-        /*!
-         * \details A default callback for log printing.
-         * \param [in] logger 
-         * \param [in] logMsg 
-         */
-        LoggingExp static void defaultCallBack(const BaseLogger * logger, const LogMsg & logMsg);
-
-        /*!
-         * \copydoc BaseLogger::defaultCallBack
-         * \details Thread safe version.
-         */
-        LoggingExp static void defaultThreadSafeCallBack(const BaseLogger * logger, const LogMsg & logMsg);
-
-        /*!
-         * \details Makes timestamp string.
-         * \param [in] format see description of C++ std::strftime function.
-         *                    Maximum string size is 99.
-         */
-        LoggingExp static std::string timeStamp(const std::string & format = "%Y-%m-%d %T");
+        LevelHandlers & handlers() { return mLevels; }
 
         /// @}
         //---------------------------------------------------------------
@@ -288,17 +209,6 @@ namespace logging {
         std::size_t printLevel() const { return mLevel; }
 
         /*!
-         * \details Enable/Disable text colorizing in consoles.
-         * \param [in] state
-         */
-        void setTextColorizing(const bool state) { mTextColorizing = state; }
-
-        /*!
-         * \see BaseLogger::setTextColorizing
-         */
-        bool isTextColorizing() const { return mTextColorizing; }
-
-        /*!
          * \details Set log category name.
          * \param [in] category
          */
@@ -312,14 +222,53 @@ namespace logging {
 
         /// @}
         //---------------------------------------------------------------
+        /// @{
+
+        /*!
+         * \details A default callback for log printing.
+         * \details Setup example:
+         *          \li \%TM - time that takes format string for the std::strftime function inside brackets.
+         *          \li \%LC - log category.
+         *          \li \%MC - message category.
+         *          \li \%MS - message.
+         *          \li \%FN - function name.
+         *          \li \%FI - file name.
+         *          \li \%LI - file line.
+         * \param [in] logger
+         * \param [in] logMsg
+         * \param [in] streams
+         * \param [in] formatting example \code "ERR: %LC %MC [%TM(%Y-%m-%d %T)] %MS \n\t[%FN -> %FI(%LI)]" \endcode
+         * \param [in] color
+         */
+        LoggingExp static void defaultHandler(const BaseLogger & logger, const LogMsg & logMsg,
+                                              const std::vector<std::ostream*> & streams,
+                                              const std::string & formatting, ColorFn color);
+
+        /*!
+		 * \details Thread safe version of the default handler.
+         * \pre It uses internal static mutex.
+         *      Make sure the behaviour is expected for your use case.
+         * \copydoc BaseLogger::defaultHandler
+         */
+        LoggingExp static void defaultThreadSafeHandler(const BaseLogger & logger, const LogMsg & logMsg,
+                                                        const std::vector<std::ostream*> & streams,
+                                                        const std::string & formatting, ColorFn color);
+
+        /*!
+         * \details Makes timestamp string.
+         * \param [in] format see description of C++ std::strftime function.
+         *                    Maximum string size is 99.
+         */
+        LoggingExp static std::string timeStamp(const std::string & format = "%Y-%m-%d %T");
+
+        /// @}
+        //---------------------------------------------------------------
 
     private:
 
-        LevelConfigs mLevels;
+        LevelHandlers mLevels;
         std::string mCategory;
-        CallBack mCallBack = defaultCallBack;
         std::size_t mLevel = LvlDebug;
-        bool mTextColorizing = true;
 
     };
 
@@ -344,7 +293,7 @@ namespace logging {
      * // define somewhere
      * template<>
      * inline stsff::LogMessage & stsff::LogMessage::operator<<<MyType>(const MyType & msg) {
-     *     this->operator<< msg; // change it for your type
+     *     *this << msg; // change it for your type
      *     return *this;
      * }
      * \endcode
@@ -385,6 +334,7 @@ namespace logging {
 
         template<class T>
         LogMessage & operator<<(const T & msg) {
+            // todo it should be in push method
             if (mLogMsg.mLevel <= mLog->printLevel()) {
                 mStream << msg;
             }

@@ -237,8 +237,10 @@ namespace logging {
                                               const std::string & formatting, ColorFn color);
 
         /*!
-         * \copydoc BaseLogger::defaultHandler
+         * \pre It uses internal static mutex.
+         *      Make sure the behaviour is expected for your use case.
          * \details Thread safe version.
+         * \copydoc BaseLogger::defaultHandler
          */
         LoggingExp static void defaultThreadSafeHandler(const BaseLogger & logger, const LogMsg & logMsg,
                                                         const std::vector<std::ostream*> & streams,

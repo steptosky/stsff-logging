@@ -83,7 +83,7 @@ namespace logging {
                 {
                     LvlCritical,
                     std::bind(defaultHandler, std::placeholders::_1, std::placeholders::_2,
-                              std::vector<std::ostream*>{&std::cout}, "CRL: %LC %MC %MS \n\t[%TM(%Y-%m-%d] [%T)] [%FN -> %FI(%LI)]", colorize::red)
+                              std::vector<std::ostream*>{&std::cout}, "ERR: %LC %MC %MS \n\t[%TM(%Y-%m-%d] [%T)] [%FN -> %FI(%LI)]", colorize::red)
                 },
         }) { }
 
@@ -98,9 +98,10 @@ namespace logging {
                 it->second(*this, logMsg);
             }
             else {
-                defaultHandler(*this, logMsg, {&std::cerr},
-                               "UNSPECIFIED LVL CONF: %LC %MC %MS \n\t[%FN -> %FI(%LI)]",
-                               colorize::yellow);
+                const auto formatting = std::string("LVL(")
+                                        .append(std::to_string(logMsg.mLevel))
+                                        .append("): %LC %MC %MS \n\t[%FN -> %FI(%LI)]");
+                defaultHandler(*this, logMsg, {&std::cout}, formatting, colorize::yellow);
             }
         }
     }

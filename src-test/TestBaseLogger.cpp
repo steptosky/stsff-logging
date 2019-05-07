@@ -43,58 +43,41 @@ using namespace stsff::logging;
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /**************************************************************************************************/
 
-class BaseLoggerCallback {
-public:
-
-    std::stringstream stream;
-
-    void setupLevels(BaseLogger * logger) {
-        assert(logger);
-        for (auto & v : logger->levelConfigs()) {
-            v.second.mStreams = {&stream};
-        }
-    }
-
-    std::string result() const { return stream.str(); }
-    void clear() { stream = std::stringstream(); }
-};
-
-/**************************************************************************************************/
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/**************************************************************************************************/
-
 TEST(BaseLogger, formatting) {
-    BaseLoggerCallback callback;
+    std::stringstream stream;
     BaseLogger logger("log-category");
-    callback.setupLevels(&logger);
-    logger.levelConfig(BaseLogger::LvlMsg)->mFormatting = "%LC,%MC,%MS,%FN,%FI,%LI";
+    logger.setHandler(BaseLogger::LvlMsg, [&](const BaseLogger & l, const BaseLogger::LogMsg & logMsg) {
+        BaseLogger::defaultHandler(l, logMsg, std::vector<std::ostream*>{&stream}, "%LC,%MC,%MS,%FN,%FI,%LI", nullptr);
+    });
     //---------------
-    callback.clear();
     LogMessage(logger).setCategory("msg-cat").message() << "message" << LPush;
-    EXPECT_STREQ("log-category,msg-cat,message,,,0\n", callback.result().c_str());
+    auto result = stream.str();
+    EXPECT_STREQ("log-category,msg-cat,message,,,0\n", result.c_str());
     //---------------
-    callback.clear();
+    stream.str(std::string());
     LogMessage(logger, "function", "file", 5).message() << "message" << LPush;
-    EXPECT_STREQ("log-category,,message,function,file,5\n", callback.result().c_str());
+    result = stream.str();
+    EXPECT_STREQ("log-category,,message,function,file,5\n", result.c_str());
 }
 
 TEST(BaseLogger, formatting_custom_level) {
-    BaseLoggerCallback callback;
+    std::stringstream stream;
     BaseLogger logger;
-    callback.setupLevels(&logger);
-    logger.setLevelConfig(BaseLogger::eLevel(5), BaseLogger::LevelConfig({&callback.stream}, "5,%LC,%MC,%MS,%FN,%FI,%LI"));
+    logger.setHandler(BaseLogger::eLevel(5), [&](const BaseLogger & l, const BaseLogger::LogMsg & logMsg) {
+        BaseLogger::defaultHandler(l, logMsg, std::vector<std::ostream*>{&stream}, "5,%LC,%MC,%MS,%FN,%FI,%LI", nullptr);
+    });
     //---------------
     LogMessage(logger).level(5) << "message" << LPush;
-    EXPECT_STREQ("5,,,message,,,0\n", callback.result().c_str());
+    const auto result = stream.str();
+    EXPECT_STREQ("5,,,message,,,0\n", result.c_str());
     //---------------
 }
 
 TEST(BaseLogger, formatting_unknown_level) {
-    BaseLoggerCallback callback;
-    BaseLogger logger;
-    callback.setupLevels(&logger);
+    const std::stringstream stream;
+    const BaseLogger logger;
     auto * coutBuff = std::cout.rdbuf();
-    std::cout.rdbuf(callback.stream.rdbuf());
+    std::cout.rdbuf(stream.rdbuf());
     try {
         LogMessage(logger).level(25) << "message" << LPush;
         std::cout.rdbuf(coutBuff);
@@ -103,33 +86,41 @@ TEST(BaseLogger, formatting_unknown_level) {
         std::cout.rdbuf(coutBuff);
         throw;
     }
-    ASSERT_STREQ(" level configuration isn't specified for the level: [25]\n\
-UNSPECIFIED LVL CONF:   message \n\t[ -> (0)]\n", callback.result().c_str());
+    const auto result = stream.str();
+    ASSERT_STREQ("LVL(25):   message \n\t[ -> (0)]\n", result.c_str());
 }
 
 TEST(BaseLogger, formatting_level) {
-    BaseLoggerCallback callback;
+    std::stringstream stream;
     BaseLogger logger;
-    callback.setupLevels(&logger);
+    logger.setHandler(BaseLogger::LvlInfo, [&](const BaseLogger & l, const BaseLogger::LogMsg & logMsg) {
+        BaseLogger::defaultHandler(l, logMsg, std::vector<std::ostream*>{&stream}, "INF: %LC %MC %MS", colorize::cyan);
+    });
+    logger.setHandler(BaseLogger::LvlWarning, [&](const BaseLogger & l, const BaseLogger::LogMsg & logMsg) {
+        BaseLogger::defaultHandler(l, logMsg, std::vector<std::ostream*>{&stream}, "WRN: %LC %MC %MS", colorize::yellow);
+    });
     logger.setPrintLevel(BaseLogger::LvlWarning);
     //---------------
-    callback.clear();
     LogMessage(logger).info() << "message" << LPush;
-    ASSERT_STREQ("", callback.result().c_str());
+    auto result = stream.str();
+    ASSERT_STREQ("", result.c_str());
     //---------------
-    callback.clear();
+	stream.str(std::string());
     LogMessage(logger).warning() << "message" << LPush;
-    ASSERT_STREQ("WRN:   message\n", callback.result().c_str());
+    result = stream.str();
+    ASSERT_STREQ("WRN:   message\n", result.c_str());
 }
 
 #ifdef NDEBUG // 'Only file name' is enabled in release mode
 TEST(BaseLogger, formatting_sources_only_filename_case1) {
-    BaseLoggerCallback callback;
+    std::stringstream stream;
     BaseLogger logger;
-    callback.setupLevels(&logger);
+    logger.setHandler(BaseLogger::LvlMsg, [&](const BaseLogger & l, const BaseLogger::LogMsg & logMsg) {
+        BaseLogger::defaultHandler(l, logMsg, std::vector<std::ostream*>{&stream}, "--  %LC %MC %MS", nullptr);
+    });
     //---------------
     LMessage(logger) << "message" << LPush;
-    auto result = callback.result();
+    auto result = stream.str();
     const auto it = std::find_if(result.begin(), result.end(), [](const char v) {
         return v == '\\' || v == '/';
     });
@@ -137,13 +128,14 @@ TEST(BaseLogger, formatting_sources_only_filename_case1) {
 }
 
 TEST(BaseLogger, formatting_sources_only_filename_case2) {
-    BaseLoggerCallback callback;
+    std::stringstream stream;
     BaseLogger logger;
-    callback.setupLevels(&logger);
-    logger.levelConfig(BaseLogger::LvlMsg)->mFormatting = "%FI";
+    logger.setHandler(BaseLogger::LvlMsg, [&](const BaseLogger & l, const BaseLogger::LogMsg & logMsg) {
+        BaseLogger::defaultHandler(l, logMsg, std::vector<std::ostream*>{&stream}, "%FI", nullptr);
+    });
     //---------------
     LMessage(logger) << "message" << LPush;
-    auto result = callback.result();
+    const auto result = stream.str();
     ASSERT_STRCASEEQ("TestBaseLogger.cpp\n", result.c_str());
 }
 #endif
@@ -162,13 +154,15 @@ TEST(BaseLogger, colorize) {
 }
 
 TEST(BaseLogger, time_stamp) {
-    BaseLoggerCallback callback;
+    std::stringstream stream;
     BaseLogger logger;
-    callback.setupLevels(&logger);
-    logger.setLevelConfig(BaseLogger::LvlMsg, BaseLogger::LevelConfig({&callback.stream}, "%TM(%Y)"));
+    logger.setHandler(BaseLogger::LvlMsg, [&](const BaseLogger & l, const BaseLogger::LogMsg & logMsg) {
+        BaseLogger::defaultHandler(l, logMsg, std::vector<std::ostream*>{&stream}, "%TM(%Y)", nullptr);
+    });
     //---------------
     LogMessage(logger).message() << "message" << LPush;
-    EXPECT_STREQ(LTimeStamp("%Y\n").c_str(), callback.result().c_str());
+    const auto result = stream.str();
+    EXPECT_STREQ(LTimeStamp("%Y\n").c_str(), result.c_str());
     //---------------
 }
 
@@ -178,10 +172,10 @@ TEST(BaseLogger, time_stamp) {
 
 #ifndef NDEBUG
 TEST(BaseLogger, invalid_callback_data_null_stream) {
-    BaseLoggerCallback callback;
     BaseLogger logger;
-    callback.setupLevels(&logger);
-    logger.setLevelConfig(BaseLogger::LvlMsg, BaseLogger::LevelConfig({nullptr}, "%TM(%Y)"));
+    logger.setHandler(BaseLogger::LvlMsg, [&](const BaseLogger & l, const BaseLogger::LogMsg & logMsg) {
+        BaseLogger::defaultHandler(l, logMsg, std::vector<std::ostream*>{nullptr}, "%TM(%Y)", nullptr);
+    });
     //---------------
     ASSERT_DEBUG_DEATH(LogMessage(logger).message() << "message" << LPush, "");
     //---------------
@@ -189,13 +183,14 @@ TEST(BaseLogger, invalid_callback_data_null_stream) {
 #endif
 
 TEST(BaseLogger, invalid_callback_data_command_case1) {
-    BaseLoggerCallback callback;
+    std::stringstream stream;
     BaseLogger logger;
-    callback.setupLevels(&logger);
-    logger.setLevelConfig(BaseLogger::LvlMsg, BaseLogger::LevelConfig({&callback.stream}, "%TG"));
+    logger.setHandler(BaseLogger::LvlMsg, [&](const BaseLogger & l, const BaseLogger::LogMsg & logMsg) {
+        BaseLogger::defaultHandler(l, logMsg, std::vector<std::ostream*>{&stream}, "%TG", nullptr);
+    });
 
     auto * coutBuff = std::cout.rdbuf();
-    std::cout.rdbuf(callback.stream.rdbuf());
+    std::cout.rdbuf(stream.rdbuf());
     try {
         LogMessage(logger).message() << "message" << LPush;
         std::cout.rdbuf(coutBuff);
@@ -205,18 +200,20 @@ TEST(BaseLogger, invalid_callback_data_command_case1) {
         throw;
     }
     //---------------
-    ASSERT_STREQ(" unknown formatting command: [TG]\n", callback.result().c_str());
+    const auto result = stream.str();
+    ASSERT_STREQ(" unknown formatting command: [TG]\n", result.c_str());
     //---------------
 }
 
 TEST(BaseLogger, invalid_callback_data_command_case2) {
-    BaseLoggerCallback callback;
+    std::stringstream stream;
     BaseLogger logger;
-    callback.setupLevels(&logger);
-    logger.setLevelConfig(BaseLogger::LvlMsg, BaseLogger::LevelConfig({&callback.stream}, "%T"));
+    logger.setHandler(BaseLogger::LvlMsg, [&](const BaseLogger & l, const BaseLogger::LogMsg & logMsg) {
+        BaseLogger::defaultHandler(l, logMsg, std::vector<std::ostream*>{&stream}, "%T", nullptr);
+    });
 
     auto * coutBuff = std::cout.rdbuf();
-    std::cout.rdbuf(callback.stream.rdbuf());
+    std::cout.rdbuf(stream.rdbuf());
     try {
         LogMessage(logger).message() << "message" << LPush;
         std::cout.rdbuf(coutBuff);
@@ -226,18 +223,20 @@ TEST(BaseLogger, invalid_callback_data_command_case2) {
         throw;
     }
     //---------------
-    ASSERT_STREQ(" unexpected end of formatting string after [T], expected the second command letter\n", callback.result().c_str());
+    const auto result = stream.str();
+    ASSERT_STREQ(" unexpected end of formatting string after [T], expected the second command letter\n", result.c_str());
     //---------------
 }
 
 TEST(BaseLogger, invalid_callback_data_time_command_case1) {
-    BaseLoggerCallback callback;
+    std::stringstream stream;
     BaseLogger logger;
-    callback.setupLevels(&logger);
-    logger.setLevelConfig(BaseLogger::LvlMsg, BaseLogger::LevelConfig({&callback.stream}, "%TM"));
+    logger.setHandler(BaseLogger::LvlMsg, [&](const BaseLogger & l, const BaseLogger::LogMsg & logMsg) {
+        BaseLogger::defaultHandler(l, logMsg, std::vector<std::ostream*>{&stream}, "%TM", nullptr);
+    });
 
     auto * coutBuff = std::cout.rdbuf();
-    std::cout.rdbuf(callback.stream.rdbuf());
+    std::cout.rdbuf(stream.rdbuf());
     try {
         LogMessage(logger).message() << "message" << LPush;
         std::cout.rdbuf(coutBuff);
@@ -247,18 +246,20 @@ TEST(BaseLogger, invalid_callback_data_time_command_case1) {
         throw;
     }
     //---------------
-    ASSERT_STREQ(" unexpected end of formatting string after the time command, expected '()'\n", callback.result().c_str());
+    const auto result = stream.str();
+    ASSERT_STREQ(" unexpected end of formatting string after the time command, expected '()'\n", result.c_str());
     //---------------
 }
 
 TEST(BaseLogger, invalid_callback_data_time_command_case2) {
-    BaseLoggerCallback callback;
+    std::stringstream stream;
     BaseLogger logger;
-    callback.setupLevels(&logger);
-    logger.setLevelConfig(BaseLogger::LvlMsg, BaseLogger::LevelConfig({&callback.stream}, "%TMG"));
+    logger.setHandler(BaseLogger::LvlMsg, [&](const BaseLogger & l, const BaseLogger::LogMsg & logMsg) {
+        BaseLogger::defaultHandler(l, logMsg, std::vector<std::ostream*>{&stream}, "%TMG", nullptr);
+    });
 
     auto * coutBuff = std::cout.rdbuf();
-    std::cout.rdbuf(callback.stream.rdbuf());
+    std::cout.rdbuf(stream.rdbuf());
     try {
         LogMessage(logger).message() << "message" << LPush;
         std::cout.rdbuf(coutBuff);
@@ -268,18 +269,20 @@ TEST(BaseLogger, invalid_callback_data_time_command_case2) {
         throw;
     }
     //---------------
-    ASSERT_STREQ(" unexpected symbol G after time command, expected '('\n", callback.result().c_str());
+    const auto result = stream.str();
+    ASSERT_STREQ(" unexpected symbol G after time command, expected '('\n", result.c_str());
     //---------------
 }
 
 TEST(BaseLogger, invalid_callback_data_time_command_case3) {
-    BaseLoggerCallback callback;
+    std::stringstream stream;
     BaseLogger logger;
-    callback.setupLevels(&logger);
-    logger.setLevelConfig(BaseLogger::LvlMsg, BaseLogger::LevelConfig({&callback.stream}, "%TM("));
+    logger.setHandler(BaseLogger::LvlMsg, [&](const BaseLogger & l, const BaseLogger::LogMsg & logMsg) {
+        BaseLogger::defaultHandler(l, logMsg, std::vector<std::ostream*>{&stream}, "%TM(", nullptr);
+    });
 
     auto * coutBuff = std::cout.rdbuf();
-    std::cout.rdbuf(callback.stream.rdbuf());
+    std::cout.rdbuf(stream.rdbuf());
     try {
         LogMessage(logger).message() << "message" << LPush;
         std::cout.rdbuf(coutBuff);
@@ -289,7 +292,8 @@ TEST(BaseLogger, invalid_callback_data_time_command_case3) {
         throw;
     }
     //---------------
-    ASSERT_STREQ(" unexpected end of formatting string after the time command, missed ')'\n", callback.result().c_str());
+    const auto result = stream.str();
+    ASSERT_STREQ(" unexpected end of formatting string after the time command, missed ')'\n", result.c_str());
     //---------------
 }
 
@@ -298,13 +302,15 @@ TEST(BaseLogger, invalid_callback_data_time_command_case3) {
 /**************************************************************************************************/
 
 TEST(BaseLogger, threadsafe_simple_test) {
-    BaseLoggerCallback callback;
+    std::stringstream stream;
     BaseLogger logger;
-    callback.setupLevels(&logger);
-    logger.setCallBack(BaseLogger::defaultThreadSafeCallBack);
+    logger.setHandler(BaseLogger::LvlDebug, [&](const BaseLogger & l, const BaseLogger::LogMsg & logMsg) {
+        BaseLogger::defaultThreadSafeHandler(l, logMsg, std::vector<std::ostream*>{&stream}, "DBG: %LC %MC %MS", nullptr);
+    });
     //---------------
     LogMessage(logger).debug() << "message" << LPush;
-    ASSERT_STREQ("DBG:   message\n", callback.result().c_str());
+    const auto result = stream.str();
+    ASSERT_STREQ("DBG:   message\n", result.c_str());
 }
 
 /**************************************************************************************************/
@@ -312,16 +318,19 @@ TEST(BaseLogger, threadsafe_simple_test) {
 /**************************************************************************************************/
 
 TEST(LogMessage, abort) {
-    BaseLoggerCallback callback;
+    std::stringstream stream;
     BaseLogger logger;
-    callback.setupLevels(&logger);
+    logger.setHandler(BaseLogger::LvlWarning, [&](const BaseLogger & l, const BaseLogger::LogMsg & logMsg) {
+        BaseLogger::defaultThreadSafeHandler(l, logMsg, std::vector<std::ostream*>{&stream}, "WRN: %LC %MC %MS", colorize::yellow);
+    });
     //---------------
-    callback.clear();
     LogMessage msg(logger);
     msg.warning() << "message";
     msg.abort();
     msg.push();
-    ASSERT_STREQ("", callback.result().c_str());
+    //---------------
+    const auto result = stream.str();
+    ASSERT_STREQ("", result.c_str());
 }
 
 /**************************************************************************************************/

@@ -305,13 +305,14 @@ namespace logging {
     /**************************************************************************************************/
 
     void LogMessage::push() {
-        if (!mPushed) {
-            const auto str = mStream.str();
-            if (!str.empty()) {
-                mLogMsg.mMsg = BaseLogger::StringView(str.data(), str.length());
-                mLog->log(mLogMsg);
-            }
-            mPushed = true;
+        if (mPushed || mLogMsg.mLevel > mLog->printLevel() || !mLog) {
+            return;
+        }
+        mPushed = true;
+        const auto str = mStream.str();
+        if (!str.empty()) {
+            mLogMsg.mMsg = BaseLogger::StringView(str.data(), str.length());
+            mLog->log(mLogMsg);
         }
     }
 

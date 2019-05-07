@@ -334,10 +334,7 @@ namespace logging {
 
         template<class T>
         LogMessage & operator<<(const T & msg) {
-            // todo it should be in push method
-            if (mLogMsg.mLevel <= mLog->printLevel()) {
-                mStream << msg;
-            }
+			mStream << msg;
             return *this;
         }
 

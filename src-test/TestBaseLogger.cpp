@@ -53,11 +53,11 @@ TEST(BaseLogger, variadic) {
     LogMessage(logger).setCategory("msg-cat").write("message1", "message2", "message3").push();
     auto result = stream.str();
     EXPECT_STREQ("log-category,msg-cat,message1message2message3,,,0\n", result.c_str());
-	//---------------
-	stream.str(std::string());
-	LogMessage(logger).setCategory("msg-cat").writeSp("message1", "message2", "message3").push();
-	result = stream.str();
-	EXPECT_STREQ("log-category,msg-cat,message1 message2 message3,,,0\n", result.c_str());
+    //---------------
+    stream.str(std::string());
+    LogMessage(logger).setCategory("msg-cat").writeSp("message1", "message2", "message3").push();
+    result = stream.str();
+    EXPECT_STREQ("log-category,msg-cat,message1 message2 message3,,,0\n", result.c_str());
 }
 
 /**************************************************************************************************/

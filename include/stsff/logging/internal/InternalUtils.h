@@ -72,38 +72,6 @@ namespace stsff {
 namespace logging {
     namespace internal {
 
-#ifdef STSFF_LOGGER_USE_FULL_SOURCES_PATH
-        constexpr const char * fileName(const char * str) {
-            return str;
-        }
-#else
-        constexpr const char * strEnd(const char * str) {
-            return *str ? strEnd(str + 1) : str;
-        }
-
-        constexpr bool strSlant(const char * str, const char sep) {
-            return *str == sep ? true : (*str ? strSlant(str + 1, sep) : false);
-        }
-
-        constexpr const char * rSlant(const char * str, const char sep) {
-            return *str == sep ? (str + 1) : rSlant(str - 1, sep);
-        }
-
-        constexpr const char * fileName(const char * str) {
-            // c++ 11 doesn't allow declaration variables in constexpr
-            // it is available since 14.
-            // so the code might be:
-            // const char * res1 = strSlant(str, '\\') ? rSlant(strEnd(str), '\\') : str;
-            // const char * res2 = strSlant(res1, '/') ? rSlant(strEnd(res1), '/') : res1;
-            // return res2;
-#   if defined(STSFF_LOGGER_OS_MACOS) || defined(STSFF_LOGGER_OS_LINUX)
-            return strSlant(str, '/') ? rSlant(strEnd(str), '/') : str;
-#   elif defined(STSFF_LOGGER_OS_WINDOWS)
-            return strSlant(str, '\\') ? rSlant(strEnd(str), '\\') : str;
-#   endif
-        }
-#endif
-
         /*!
          * \brief Represents string message of the logger.
          * \details Actually it should be deleted when we can use std::string_view.

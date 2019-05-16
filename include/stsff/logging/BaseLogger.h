@@ -37,7 +37,7 @@
 #include <unordered_map>
 #include <limits>
 #include <vector>
-#include "internal/InternalUtils.h"
+#include "utils/SourceName.h"
 
 /**************************************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -487,29 +487,29 @@ namespace logging {
 #   define LVar(VAR,L)        stsff::logging::LogMessage VAR(L, __STS_FUNC_NAME__, __FILE__, __LINE__);VAR
 
 // Log messages
-#   define LCritical(L)       stsff::logging::LogMessage(L, __STS_FUNC_NAME__, stsff::logging::internal::fileName(__FILE__), __LINE__).critical()
-#   define LError(L)          stsff::logging::LogMessage(L, __STS_FUNC_NAME__, stsff::logging::internal::fileName(__FILE__), __LINE__).error()
-#   define LFail(L)           stsff::logging::LogMessage(L, __STS_FUNC_NAME__, stsff::logging::internal::fileName(__FILE__), __LINE__).fail()
-#   define LWarning(L)        stsff::logging::LogMessage(L, __STS_FUNC_NAME__, stsff::logging::internal::fileName(__FILE__), __LINE__).warning()
-#   define LSuccess(L)        stsff::logging::LogMessage(L, __STS_FUNC_NAME__, stsff::logging::internal::fileName(__FILE__), __LINE__).success()
-#   define LInfo(L)           stsff::logging::LogMessage(L, __STS_FUNC_NAME__, stsff::logging::internal::fileName(__FILE__), __LINE__).info()
-#   define LMessage(L)        stsff::logging::LogMessage(L, __STS_FUNC_NAME__, stsff::logging::internal::fileName(__FILE__), __LINE__).message()
-#   define LDebug(L)          stsff::logging::LogMessage(L, __STS_FUNC_NAME__, stsff::logging::internal::fileName(__FILE__), __LINE__).debug()
-#   define LLevel(L,LVL)      stsff::logging::LogMessage(L, __STS_FUNC_NAME__, stsff::logging::internal::fileName(__FILE__), __LINE__).level(LVL)
+#   define LCritical(L)       stsff::logging::LogMessage(L, __STS_FUNC_NAME__, sourceName(__FILE__), __LINE__).critical()
+#   define LError(L)          stsff::logging::LogMessage(L, __STS_FUNC_NAME__, sourceName(__FILE__), __LINE__).error()
+#   define LFail(L)           stsff::logging::LogMessage(L, __STS_FUNC_NAME__, sourceName(__FILE__), __LINE__).fail()
+#   define LWarning(L)        stsff::logging::LogMessage(L, __STS_FUNC_NAME__, sourceName(__FILE__), __LINE__).warning()
+#   define LSuccess(L)        stsff::logging::LogMessage(L, __STS_FUNC_NAME__, sourceName(__FILE__), __LINE__).success()
+#   define LInfo(L)           stsff::logging::LogMessage(L, __STS_FUNC_NAME__, sourceName(__FILE__), __LINE__).info()
+#   define LMessage(L)        stsff::logging::LogMessage(L, __STS_FUNC_NAME__, sourceName(__FILE__), __LINE__).message()
+#   define LDebug(L)          stsff::logging::LogMessage(L, __STS_FUNC_NAME__, sourceName(__FILE__), __LINE__).debug()
+#   define LLevel(L,LVL)      stsff::logging::LogMessage(L, __STS_FUNC_NAME__, sourceName(__FILE__), __LINE__).level(LVL)
 #   define LTimeStamp(F)      stsff::logging::BaseLogger::timeStamp(F)
 
 // Just creates LogMessage variable and you can use it then 
 #   define LcVar(VAR,L,C)     stsff::logging::LogMessage VAR(L, __STS_FUNC_NAME__, __FILE__, __LINE__);VAR.setCategory(C)
 
 // Category log messages
-#   define LcCritical(L,C)    stsff::logging::LogMessage(L, __STS_FUNC_NAME__, stsff::logging::internal::fileName(__FILE__), __LINE__).setCategory(C).critical()
-#   define LcError(L,C)       stsff::logging::LogMessage(L, __STS_FUNC_NAME__, stsff::logging::internal::fileName(__FILE__), __LINE__).setCategory(C).error()
-#   define LcWarning(L,C)     stsff::logging::LogMessage(L, __STS_FUNC_NAME__, stsff::logging::internal::fileName(__FILE__), __LINE__).setCategory(C).warning()
-#   define LcSuccess(L,C)     stsff::logging::LogMessage(L, __STS_FUNC_NAME__, stsff::logging::internal::fileName(__FILE__), __LINE__).setCategory(C).success()
-#   define LcInfo(L,C)        stsff::logging::LogMessage(L, __STS_FUNC_NAME__, stsff::logging::internal::fileName(__FILE__), __LINE__).setCategory(C).info()
-#   define LcMessage(L,C)     stsff::logging::LogMessage(L, __STS_FUNC_NAME__, stsff::logging::internal::fileName(__FILE__), __LINE__).setCategory(C).message()
-#   define LcDebug(L,C)       stsff::logging::LogMessage(L, __STS_FUNC_NAME__, stsff::logging::internal::fileName(__FILE__), __LINE__).setCategory(C).debug()
-#   define LcLevel(L,C,LVL)   stsff::logging::LogMessage(L, __STS_FUNC_NAME__, stsff::logging::internal::fileName(__FILE__), __LINE__).setCategory(C).level(LVL)
+#   define LcCritical(L,C)    stsff::logging::LogMessage(L, __STS_FUNC_NAME__, sourceName(__FILE__), __LINE__).setCategory(C).critical()
+#   define LcError(L,C)       stsff::logging::LogMessage(L, __STS_FUNC_NAME__, sourceName(__FILE__), __LINE__).setCategory(C).error()
+#   define LcWarning(L,C)     stsff::logging::LogMessage(L, __STS_FUNC_NAME__, sourceName(__FILE__), __LINE__).setCategory(C).warning()
+#   define LcSuccess(L,C)     stsff::logging::LogMessage(L, __STS_FUNC_NAME__, sourceName(__FILE__), __LINE__).setCategory(C).success()
+#   define LcInfo(L,C)        stsff::logging::LogMessage(L, __STS_FUNC_NAME__, sourceName(__FILE__), __LINE__).setCategory(C).info()
+#   define LcMessage(L,C)     stsff::logging::LogMessage(L, __STS_FUNC_NAME__, sourceName(__FILE__), __LINE__).setCategory(C).message()
+#   define LcDebug(L,C)       stsff::logging::LogMessage(L, __STS_FUNC_NAME__, sourceName(__FILE__), __LINE__).setCategory(C).debug()
+#   define LcLevel(L,C,LVL)   stsff::logging::LogMessage(L, __STS_FUNC_NAME__, sourceName(__FILE__), __LINE__).setCategory(C).level(LVL)
 
 // Force push
 #   define LPush stsff::logging::LogMessage::CmdPush()

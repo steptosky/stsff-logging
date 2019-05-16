@@ -40,50 +40,58 @@ namespace stsff {
 namespace logging {
 
     /**************************************************************************************************/
+    /////////////////////////////////////////* Static area *////////////////////////////////////////////
+    /**************************************************************************************************/
+
+    static std::vector<std::ostream*> gCout{&std::cout};
+    static std::vector<std::ostream*> gCerr{&std::cerr};
+
+    /**************************************************************************************************/
     ////////////////////////////////////* Constructors/Destructor */////////////////////////////////////
     /**************************************************************************************************/
 
     BaseLogger::BaseLogger(const StringView category)
         : BaseLogger(category, {
                 {
-                    LvlDebug,
-                    std::bind(defaultHandler, std::placeholders::_1, std::placeholders::_2,
-                              std::vector<std::ostream*>{&std::cout}, "DBG: %LC %MC %MS", colorize::magenta)
+                    LvlDebug, [](const BaseLogger & l, const LogMsg & m) {
+                        defaultHandler(l, m, gCout, "DBG: %LC %MC %MS", colorize::magenta);
+                    }
                 },
                 {
-                    LvlMsg,
-                    std::bind(defaultHandler, std::placeholders::_1, std::placeholders::_2,
-                              std::vector<std::ostream*>{&std::cout}, "--  %LC %MC %MS", nullptr)
+                    LvlMsg, [](const BaseLogger & l, const LogMsg & m) {
+                        defaultHandler(l, m, gCout, "--  %LC %MC %MS", nullptr);
+                    }
+
                 },
                 {
-                    LvlInfo,
-                    std::bind(defaultHandler, std::placeholders::_1, std::placeholders::_2,
-                              std::vector<std::ostream*>{&std::cout}, "INF: %LC %MC %MS", colorize::cyan)
+                    LvlInfo, [](const BaseLogger & l, const LogMsg & m) {
+                        defaultHandler(l, m, gCout, "INF: %LC %MC %MS", colorize::cyan);
+                    }
                 },
                 {
-                    LvlSuccess,
-                    std::bind(defaultHandler, std::placeholders::_1, std::placeholders::_2,
-                              std::vector<std::ostream*>{&std::cout}, "INF: %LC %MC %MS | OK", colorize::green)
+                    LvlSuccess, [](const BaseLogger & l, const LogMsg & m) {
+                        defaultHandler(l, m, gCout, "INF: %LC %MC %MS | OK", colorize::green);
+                    }
                 },
                 {
-                    LvlWarning,
-                    std::bind(defaultHandler, std::placeholders::_1, std::placeholders::_2,
-                              std::vector<std::ostream*>{&std::cout}, "WRN: %LC %MC %MS", colorize::yellow)
+                    LvlWarning, [](const BaseLogger & l, const LogMsg & m) {
+                        defaultHandler(l, m, gCout, "WRN: %LC %MC %MS", colorize::yellow);
+                    }
                 },
                 {
-                    LvlFail,
-                    std::bind(defaultHandler, std::placeholders::_1, std::placeholders::_2,
-                              std::vector<std::ostream*>{&std::cerr}, "ERR: %LC %MC %MS | FAIL\n\t[%TM(%Y-%m-%d] [%T)] [%FN -> %FI(%LI)]", colorize::red)
+                    LvlFail, [](const BaseLogger & l, const LogMsg & m) {
+                        defaultHandler(l, m, gCerr, "ERR: %LC %MC %MS | FAIL\n\t[%TM(%Y-%m-%d] [%T)] [%FN -> %FI(%LI)]", colorize::red);
+                    }
                 },
                 {
-                    LvlError,
-                    std::bind(defaultHandler, std::placeholders::_1, std::placeholders::_2,
-                              std::vector<std::ostream*>{&std::cerr}, "ERR: %LC %MC %MS \n\t[%TM(%Y-%m-%d] [%T)] [%FN -> %FI(%LI)]", colorize::red)
+                    LvlError, [](const BaseLogger & l, const LogMsg & m) {
+                        defaultHandler(l, m, gCerr, "ERR: %LC %MC %MS \n\t[%TM(%Y-%m-%d] [%T)] [%FN -> %FI(%LI)]", colorize::red);
+                    }
                 },
                 {
-                    LvlCritical,
-                    std::bind(defaultHandler, std::placeholders::_1, std::placeholders::_2,
-                              std::vector<std::ostream*>{&std::cerr}, "ERR: %LC %MC %MS \n\t[%TM(%Y-%m-%d] [%T)] [%FN -> %FI(%LI)]", colorize::red)
+                    LvlCritical, [](const BaseLogger & l, const LogMsg & m) {
+                        defaultHandler(l, m, gCerr, "ERR: %LC %MC %MS \n\t[%TM(%Y-%m-%d] [%T)] [%FN -> %FI(%LI)]", colorize::red);
+                    }
                 },
         }) { }
 

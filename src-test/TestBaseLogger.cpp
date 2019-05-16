@@ -43,6 +43,27 @@ using namespace stsff::logging;
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /**************************************************************************************************/
 
+TEST(BaseLogger, variadic) {
+    std::stringstream stream;
+    BaseLogger logger("log-category");
+    logger.setHandler(BaseLogger::LvlMsg, [&](const BaseLogger & l, const BaseLogger::LogMsg & logMsg) {
+        BaseLogger::defaultHandler(l, logMsg, std::vector<std::ostream*>{&stream}, "%LC,%MC,%MS,%FN,%FI,%LI", nullptr);
+    });
+    //---------------
+    LogMessage(logger).setCategory("msg-cat").write("message1", "message2", "message3").push();
+    auto result = stream.str();
+    EXPECT_STREQ("log-category,msg-cat,message1message2message3,,,0\n", result.c_str());
+	//---------------
+	stream.str(std::string());
+	LogMessage(logger).setCategory("msg-cat").writeSp("message1", "message2", "message3").push();
+	result = stream.str();
+	EXPECT_STREQ("log-category,msg-cat,message1 message2 message3,,,0\n", result.c_str());
+}
+
+/**************************************************************************************************/
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/**************************************************************************************************/
+
 TEST(BaseLogger, formatting) {
     std::stringstream stream;
     BaseLogger logger("log-category");
@@ -105,7 +126,7 @@ TEST(BaseLogger, formatting_level) {
     auto result = stream.str();
     ASSERT_STREQ("", result.c_str());
     //---------------
-	stream.str(std::string());
+    stream.str(std::string());
     LogMessage(logger).warning() << "message" << LPush;
     result = stream.str();
     ASSERT_STREQ("WRN:   message\n", result.c_str());

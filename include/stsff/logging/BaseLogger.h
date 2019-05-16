@@ -332,9 +332,41 @@ namespace logging {
         //---------------------------------------------------------------
         /// @{
 
+        /*!
+		 * \brief Alternative for the operator <<
+		 * \details Example: writeSp(1,2,3) -> "123"
+		 * \see \link LogMessage::writeSp \endlink
+		 * \param [in] args
+		 */
+        template<typename... Args>
+        LogMessage & write(const Args & ... args) {
+            int unpack[]{0, ((*this << args), 0)...};
+            return *this;
+        }
+
+        /*!
+         * \brief Write message with space at the end.
+         * \details Example: writeSp(1,2,3) -> "1 2 3 "
+         * \pre This function takes 2 or more arguments.
+         * \see \link LogMessage::write \endlink
+         * \param [in] first
+         * \param [in] other
+         */
+        template<typename T, typename... Args>
+        LogMessage & writeSp(const T & first, const Args & ... other) {
+            static_assert(sizeof...(other), "This function takes 2 or more arguments!");
+            *this << first;
+            int unpack[]{0, ((*this << " " << other), 0)...};
+            return *this;
+        }
+
+        /// @}
+        //---------------------------------------------------------------
+        /// @{
+
         template<class T>
         LogMessage & operator<<(const T & msg) {
-			mStream << msg;
+            mStream << msg;
             return *this;
         }
 

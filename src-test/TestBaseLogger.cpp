@@ -47,7 +47,7 @@ TEST(BaseLogger, variadic) {
     std::stringstream stream;
     BaseLogger logger("log-category");
     logger.setHandler(BaseLogger::LvlMsg, [&](const BaseLogger & l, const BaseLogger::LogMsg & logMsg) {
-        BaseLogger::defaultHandler(l, logMsg, std::vector<std::ostream*>{&stream}, "%LC,%MC,%MS,%FN,%FI,%LI", nullptr);
+        BaseLogger::defaultHandler(l, logMsg, stream, "%LC,%MC,%MS,%FN,%FI,%LI", nullptr);
     });
     //---------------
     LogMessage(logger).setCategory("msg-cat").write("message1", "message2", "message3").push();
@@ -68,7 +68,7 @@ TEST(BaseLogger, formatting) {
     std::stringstream stream;
     BaseLogger logger("log-category");
     logger.setHandler(BaseLogger::LvlMsg, [&](const BaseLogger & l, const BaseLogger::LogMsg & logMsg) {
-        BaseLogger::defaultHandler(l, logMsg, std::vector<std::ostream*>{&stream}, "%LC,%MC,%MS,%FN,%FI,%LI", nullptr);
+        BaseLogger::defaultHandler(l, logMsg, stream, "%LC,%MC,%MS,%FN,%FI,%LI", nullptr);
     });
     //---------------
     LogMessage(logger).setCategory("msg-cat").message() << "message" << LPush;
@@ -85,7 +85,7 @@ TEST(BaseLogger, formatting_custom_level) {
     std::stringstream stream;
     BaseLogger logger;
     logger.setHandler(BaseLogger::eLevel(5), [&](const BaseLogger & l, const BaseLogger::LogMsg & logMsg) {
-        BaseLogger::defaultHandler(l, logMsg, std::vector<std::ostream*>{&stream}, "5,%LC,%MC,%MS,%FN,%FI,%LI", nullptr);
+        BaseLogger::defaultHandler(l, logMsg, stream, "5,%LC,%MC,%MS,%FN,%FI,%LI", nullptr);
     });
     //---------------
     LogMessage(logger).level(5) << "message" << LPush;
@@ -115,10 +115,10 @@ TEST(BaseLogger, formatting_level) {
     std::stringstream stream;
     BaseLogger logger;
     logger.setHandler(BaseLogger::LvlInfo, [&](const BaseLogger & l, const BaseLogger::LogMsg & logMsg) {
-        BaseLogger::defaultHandler(l, logMsg, std::vector<std::ostream*>{&stream}, "INF: %LC %MC %MS", colorize::cyan);
+        BaseLogger::defaultHandler(l, logMsg, stream, "INF: %LC %MC %MS", colorize::cyan);
     });
     logger.setHandler(BaseLogger::LvlWarning, [&](const BaseLogger & l, const BaseLogger::LogMsg & logMsg) {
-        BaseLogger::defaultHandler(l, logMsg, std::vector<std::ostream*>{&stream}, "WRN: %LC %MC %MS", colorize::yellow);
+        BaseLogger::defaultHandler(l, logMsg, stream, "WRN: %LC %MC %MS", colorize::yellow);
     });
     logger.setPrintLevel(BaseLogger::LvlWarning);
     //---------------
@@ -137,7 +137,7 @@ TEST(BaseLogger, formatting_sources_only_filename_case1) {
     std::stringstream stream;
     BaseLogger logger;
     logger.setHandler(BaseLogger::LvlMsg, [&](const BaseLogger & l, const BaseLogger::LogMsg & logMsg) {
-        BaseLogger::defaultHandler(l, logMsg, std::vector<std::ostream*>{&stream}, "--  %LC %MC %MS", nullptr);
+        BaseLogger::defaultHandler(l, logMsg, stream, "--  %LC %MC %MS", nullptr);
     });
     //---------------
     LMessage(logger) << "message" << LPush;
@@ -152,7 +152,7 @@ TEST(BaseLogger, formatting_sources_only_filename_case2) {
     std::stringstream stream;
     BaseLogger logger;
     logger.setHandler(BaseLogger::LvlMsg, [&](const BaseLogger & l, const BaseLogger::LogMsg & logMsg) {
-        BaseLogger::defaultHandler(l, logMsg, std::vector<std::ostream*>{&stream}, "%FI", nullptr);
+        BaseLogger::defaultHandler(l, logMsg, stream, "%FI", nullptr);
     });
     //---------------
     LMessage(logger) << "message" << LPush;
@@ -178,7 +178,7 @@ TEST(BaseLogger, time_stamp) {
     std::stringstream stream;
     BaseLogger logger;
     logger.setHandler(BaseLogger::LvlMsg, [&](const BaseLogger & l, const BaseLogger::LogMsg & logMsg) {
-        BaseLogger::defaultHandler(l, logMsg, std::vector<std::ostream*>{&stream}, "%TM(%Y)", nullptr);
+        BaseLogger::defaultHandler(l, logMsg, stream, "%TM(%Y)", nullptr);
     });
     //---------------
     LogMessage(logger).message() << "message" << LPush;
@@ -191,23 +191,11 @@ TEST(BaseLogger, time_stamp) {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /**************************************************************************************************/
 
-#ifndef NDEBUG
-TEST(BaseLogger, invalid_callback_data_null_stream) {
-    BaseLogger logger;
-    logger.setHandler(BaseLogger::LvlMsg, [&](const BaseLogger & l, const BaseLogger::LogMsg & logMsg) {
-        BaseLogger::defaultHandler(l, logMsg, std::vector<std::ostream*>{nullptr}, "%TM(%Y)", nullptr);
-    });
-    //---------------
-    ASSERT_DEBUG_DEATH(LogMessage(logger).message() << "message" << LPush, "");
-    //---------------
-}
-#endif
-
 TEST(BaseLogger, invalid_callback_data_command_case1) {
     std::stringstream stream;
     BaseLogger logger;
     logger.setHandler(BaseLogger::LvlMsg, [&](const BaseLogger & l, const BaseLogger::LogMsg & logMsg) {
-        BaseLogger::defaultHandler(l, logMsg, std::vector<std::ostream*>{&stream}, "%TG", nullptr);
+        BaseLogger::defaultHandler(l, logMsg, stream, "%TG", nullptr);
     });
 
     auto * coutBuff = std::cout.rdbuf();
@@ -230,7 +218,7 @@ TEST(BaseLogger, invalid_callback_data_command_case2) {
     std::stringstream stream;
     BaseLogger logger;
     logger.setHandler(BaseLogger::LvlMsg, [&](const BaseLogger & l, const BaseLogger::LogMsg & logMsg) {
-        BaseLogger::defaultHandler(l, logMsg, std::vector<std::ostream*>{&stream}, "%T", nullptr);
+        BaseLogger::defaultHandler(l, logMsg, stream, "%T", nullptr);
     });
 
     auto * coutBuff = std::cout.rdbuf();
@@ -253,7 +241,7 @@ TEST(BaseLogger, invalid_callback_data_time_command_case1) {
     std::stringstream stream;
     BaseLogger logger;
     logger.setHandler(BaseLogger::LvlMsg, [&](const BaseLogger & l, const BaseLogger::LogMsg & logMsg) {
-        BaseLogger::defaultHandler(l, logMsg, std::vector<std::ostream*>{&stream}, "%TM", nullptr);
+        BaseLogger::defaultHandler(l, logMsg, stream, "%TM", nullptr);
     });
 
     auto * coutBuff = std::cout.rdbuf();
@@ -276,7 +264,7 @@ TEST(BaseLogger, invalid_callback_data_time_command_case2) {
     std::stringstream stream;
     BaseLogger logger;
     logger.setHandler(BaseLogger::LvlMsg, [&](const BaseLogger & l, const BaseLogger::LogMsg & logMsg) {
-        BaseLogger::defaultHandler(l, logMsg, std::vector<std::ostream*>{&stream}, "%TMG", nullptr);
+        BaseLogger::defaultHandler(l, logMsg, stream, "%TMG", nullptr);
     });
 
     auto * coutBuff = std::cout.rdbuf();
@@ -299,7 +287,7 @@ TEST(BaseLogger, invalid_callback_data_time_command_case3) {
     std::stringstream stream;
     BaseLogger logger;
     logger.setHandler(BaseLogger::LvlMsg, [&](const BaseLogger & l, const BaseLogger::LogMsg & logMsg) {
-        BaseLogger::defaultHandler(l, logMsg, std::vector<std::ostream*>{&stream}, "%TM(", nullptr);
+        BaseLogger::defaultHandler(l, logMsg, stream, "%TM(", nullptr);
     });
 
     auto * coutBuff = std::cout.rdbuf();
@@ -326,7 +314,7 @@ TEST(BaseLogger, threadsafe_simple_test) {
     std::stringstream stream;
     BaseLogger logger;
     logger.setHandler(BaseLogger::LvlDebug, [&](const BaseLogger & l, const BaseLogger::LogMsg & logMsg) {
-        BaseLogger::defaultThreadSafeHandler(l, logMsg, std::vector<std::ostream*>{&stream}, "DBG: %LC %MC %MS", nullptr);
+        BaseLogger::defaultThreadSafeHandler(l, logMsg, stream, "DBG: %LC %MC %MS", nullptr);
     });
     //---------------
     LogMessage(logger).debug() << "message" << LPush;
@@ -342,7 +330,7 @@ TEST(LogMessage, abort) {
     std::stringstream stream;
     BaseLogger logger;
     logger.setHandler(BaseLogger::LvlWarning, [&](const BaseLogger & l, const BaseLogger::LogMsg & logMsg) {
-        BaseLogger::defaultThreadSafeHandler(l, logMsg, std::vector<std::ostream*>{&stream}, "WRN: %LC %MC %MS", colorize::yellow);
+        BaseLogger::defaultThreadSafeHandler(l, logMsg, stream, "WRN: %LC %MC %MS", colorize::yellow);
     });
     //---------------
     LogMessage msg(logger);

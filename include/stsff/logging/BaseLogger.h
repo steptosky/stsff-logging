@@ -236,13 +236,14 @@ namespace logging {
          *          \li \%LI - file line.
          * \param [in] logger
          * \param [in] logMsg
-         * \param [in] streams
+         * \param [in] stream
          * \param [in] formatting example \code "ERR: %LC %MC [%TM(%Y-%m-%d %T)] %MS \n\t[%FN -> %FI(%LI)]" \endcode
          * \param [in] color
          */
         LoggingExp static void defaultHandler(const BaseLogger & logger, const LogMsg & logMsg,
-                                              const std::vector<std::ostream*> & streams,
-                                              const std::string & formatting, ColorFn color);
+                                              std::ostream & stream,
+                                              const std::string & formatting,
+                                              ColorFn color);
 
         /*!
 		 * \details Thread safe version of the default handler.
@@ -251,8 +252,9 @@ namespace logging {
          * \copydoc BaseLogger::defaultHandler
          */
         LoggingExp static void defaultThreadSafeHandler(const BaseLogger & logger, const LogMsg & logMsg,
-                                                        const std::vector<std::ostream*> & streams,
-                                                        const std::string & formatting, ColorFn color);
+                                                        std::ostream & stream,
+                                                        const std::string & formatting,
+                                                        ColorFn color);
 
         /*!
          * \details Makes timestamp string.

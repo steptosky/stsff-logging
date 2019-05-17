@@ -40,13 +40,6 @@ namespace stsff {
 namespace logging {
 
     /**************************************************************************************************/
-    /////////////////////////////////////////* Static area *////////////////////////////////////////////
-    /**************************************************************************************************/
-
-    static std::vector<std::ostream*> gCout{&std::cout};
-    static std::vector<std::ostream*> gCerr{&std::cerr};
-
-    /**************************************************************************************************/
     ////////////////////////////////////* Constructors/Destructor */////////////////////////////////////
     /**************************************************************************************************/
 
@@ -54,43 +47,43 @@ namespace logging {
         : BaseLogger(category, {
                 {
                     LvlDebug, [](const BaseLogger & l, const LogMsg & m) {
-                        defaultHandler(l, m, gCout, "DBG: %LC %MC %MS", colorize::magenta);
+                        defaultHandler(l, m, std::cout, "DBG: %LC %MC %MS", colorize::magenta);
                     }
                 },
                 {
                     LvlMsg, [](const BaseLogger & l, const LogMsg & m) {
-                        defaultHandler(l, m, gCout, "--  %LC %MC %MS", nullptr);
+                        defaultHandler(l, m, std::cout, "--  %LC %MC %MS", nullptr);
                     }
 
                 },
                 {
                     LvlInfo, [](const BaseLogger & l, const LogMsg & m) {
-                        defaultHandler(l, m, gCout, "INF: %LC %MC %MS", colorize::cyan);
+                        defaultHandler(l, m, std::cout, "INF: %LC %MC %MS", colorize::cyan);
                     }
                 },
                 {
                     LvlSuccess, [](const BaseLogger & l, const LogMsg & m) {
-                        defaultHandler(l, m, gCout, "INF: %LC %MC %MS | OK", colorize::green);
+                        defaultHandler(l, m, std::cout, "INF: %LC %MC %MS | OK", colorize::green);
                     }
                 },
                 {
                     LvlWarning, [](const BaseLogger & l, const LogMsg & m) {
-                        defaultHandler(l, m, gCout, "WRN: %LC %MC %MS", colorize::yellow);
+                        defaultHandler(l, m, std::cout, "WRN: %LC %MC %MS", colorize::yellow);
                     }
                 },
                 {
                     LvlFail, [](const BaseLogger & l, const LogMsg & m) {
-                        defaultHandler(l, m, gCerr, "ERR: %LC %MC %MS | FAIL\n\t[%TM(%Y-%m-%d] [%T)] [%FN -> %FI(%LI)]", colorize::red);
+                        defaultHandler(l, m, std::cerr, "ERR: %LC %MC %MS | FAIL\n\t[%TM(%Y-%m-%d] [%T)] [%FN -> %FI(%LI)]", colorize::red);
                     }
                 },
                 {
                     LvlError, [](const BaseLogger & l, const LogMsg & m) {
-                        defaultHandler(l, m, gCerr, "ERR: %LC %MC %MS \n\t[%TM(%Y-%m-%d] [%T)] [%FN -> %FI(%LI)]", colorize::red);
+                        defaultHandler(l, m, std::cerr, "ERR: %LC %MC %MS \n\t[%TM(%Y-%m-%d] [%T)] [%FN -> %FI(%LI)]", colorize::red);
                     }
                 },
                 {
                     LvlCritical, [](const BaseLogger & l, const LogMsg & m) {
-                        defaultHandler(l, m, gCerr, "ERR: %LC %MC %MS \n\t[%TM(%Y-%m-%d] [%T)] [%FN -> %FI(%LI)]", colorize::red);
+                        defaultHandler(l, m, std::cerr, "ERR: %LC %MC %MS \n\t[%TM(%Y-%m-%d] [%T)] [%FN -> %FI(%LI)]", colorize::red);
                     }
                 },
         }) { }
@@ -109,7 +102,7 @@ namespace logging {
                 const auto formatting = std::string("LVL(")
                                         .append(std::to_string(logMsg.mLevel))
                                         .append("): %LC %MC %MS \n\t[%FN -> %FI(%LI)]");
-                defaultHandler(*this, logMsg, {&std::cout}, formatting, colorize::yellow);
+                defaultHandler(*this, logMsg, std::cout, formatting, colorize::yellow);
             }
         }
     }
@@ -132,16 +125,14 @@ namespace logging {
     //////////////////////////////////////////* Functions */////////////////////////////////////////////
     /**************************************************************************************************/
 
-    void BaseLogger::defaultThreadSafeHandler(const BaseLogger & logger, const LogMsg & logMsg,
-                                              const std::vector<std::ostream*> & streams,
+    void BaseLogger::defaultThreadSafeHandler(const BaseLogger & logger, const LogMsg & logMsg, std::ostream & stream,
                                               const std::string & formatting, const ColorFn color) {
         static std::mutex mutex;
         std::lock_guard<std::mutex> lock(mutex);
-        defaultHandler(logger, logMsg, streams, formatting, color);
+        defaultHandler(logger, logMsg, stream, formatting, color);
     }
 
-    void BaseLogger::defaultHandler(const BaseLogger & logger, const LogMsg & logMsg,
-                                    const std::vector<std::ostream*> & streams,
+    void BaseLogger::defaultHandler(const BaseLogger & logger, const LogMsg & logMsg, std::ostream & stream,
                                     const std::string & formatting, const ColorFn color) {
 
         const std::uint32_t time = ('T' << 8) | 'M';
@@ -152,21 +143,8 @@ namespace logging {
         const std::uint32_t fileName = ('F' << 8) | 'I';
         const std::uint32_t fileLineNum = ('L' << 8) | 'I';
 
-#ifndef NDEBUG
-        for (auto & s : streams) {
-            if (!s) {
-                std::cerr
-                        << colorize::red
-                        << " nullptr stream in the level configuration: [" << logMsg.mLevel << "]"
-                        << colorize::reset
-                        << std::endl;
-                assert(s);
-            }
-        }
-#endif
-
         if (color) {
-            for (auto & s : streams) { color(*s); }
+            color(stream);
         }
 
         bool process = false;
@@ -179,20 +157,18 @@ namespace logging {
                 continue;
             }
             if (!process) {
-                for (auto & s : streams) { *s << *ch; }
+                stream << *ch;
                 ++ch;
                 continue;
             }
             process = false;
             const auto second = ch + 1;
             if (second == formatting.end()) {
-                for (auto & s : streams) {
-                    *s << colorize::red
-                            << " unexpected end of formatting string after ["
-                            << *ch
-                            << "], expected the second command letter"
-                            << colorize::reset;
-                }
+                stream << colorize::red
+                        << " unexpected end of formatting string after ["
+                        << *ch
+                        << "], expected the second command letter"
+                        << colorize::reset;
                 break;
             }
 
@@ -202,49 +178,45 @@ namespace logging {
             switch (command) {
                 case logCategory: {
                     if (!logger.mCategory.empty()) {
-                        for (auto & s : streams) { s->write(logger.mCategory.data(), logger.mCategory.size()); }
+                        stream.write(logger.mCategory.data(), logger.mCategory.size());
                     }
                     break;
                 }
                 case messageCategory: {
                     if (!logMsg.mCategory.empty()) {
-                        for (auto & s : streams) { s->write(logMsg.mCategory.data(), logMsg.mCategory.size()); }
+                        stream.write(logMsg.mCategory.data(), logMsg.mCategory.size());
                     }
                     break;
                 }
                 case message: {
                     if (!logMsg.mMsg.empty()) {
-                        for (auto & s : streams) { s->write(logMsg.mMsg.data(), logMsg.mMsg.size()); }
+                        stream.write(logMsg.mMsg.data(), logMsg.mMsg.size());
                     }
                     break;
                 }
                 case functionName: {
-                    for (auto & s : streams) { s->write(logMsg.mFunction.data(), logMsg.mFunction.size()); }
+                    stream.write(logMsg.mFunction.data(), logMsg.mFunction.size());
                     break;
                 }
                 case fileName: {
-                    for (auto & s : streams) { s->write(logMsg.mFile.data(), logMsg.mFile.size()); }
+                    stream.write(logMsg.mFile.data(), logMsg.mFile.size());
                     break;
                 }
                 case fileLineNum: {
-                    for (auto & s : streams) { *s << logMsg.mLine; }
+                    stream << logMsg.mLine;
                     break;
                 }
                 case time: {
                     if (ch == formatting.end()) {
-                        for (auto & s : streams) {
-                            *s << colorize::red
-                                    << " unexpected end of formatting string after the time command, expected '()'"
-                                    << colorize::reset;
-                        }
+                        stream << colorize::red
+                                << " unexpected end of formatting string after the time command, expected '()'"
+                                << colorize::reset;
                         break;
                     }
                     if (*ch != '(') {
-                        for (auto & s : streams) {
-                            *s << colorize::red
-                                    << " unexpected symbol " << *ch << " after time command, expected '('"
-                                    << colorize::reset;
-                        }
+                        stream << colorize::red
+                                << " unexpected symbol " << *ch << " after time command, expected '('"
+                                << colorize::reset;
                         ++ch;
                         break;
                     }
@@ -255,33 +227,29 @@ namespace logging {
                         return c == ')';
                     });
                     if (endOfTimeFormat == formatting.end()) {
-                        for (auto & s : streams) {
-                            *s << colorize::red
-                                    << " unexpected end of formatting string after the time command, missed ')'"
-                                    << colorize::reset;
-                        }
+                        stream << colorize::red
+                                << " unexpected end of formatting string after the time command, missed ')'"
+                                << colorize::reset;
                         break;
                     }
                     const std::string formattingTimeString(&*ch, length == 0 ? 0 : length - 1); // remove last ')' char
                     ch = endOfTimeFormat;
                     const auto t = timeStamp(formattingTimeString);
-                    for (auto & s : streams) { *s << t; }
+                    stream << t;
                     ++ch;
                     break;
                 }
                 default: {
-                    for (auto & s : streams) {
-                        *s << colorize::red
-                                << " unknown formatting command: [" << char(command >> 8) << char(command) << "]"
-                                << colorize::reset;
-                    }
+                    stream << colorize::red
+                            << " unknown formatting command: [" << char(command >> 8) << char(command) << "]"
+                            << colorize::reset;
                 }
             }
         }
         if (color) {
-            for (auto & s : streams) { *s << colorize::reset; }
+            stream << colorize::reset;
         }
-        for (auto & s : streams) { *s << std::endl; }
+        stream << std::endl;
     }
 
     std::string BaseLogger::timeStamp(const std::string & format) {

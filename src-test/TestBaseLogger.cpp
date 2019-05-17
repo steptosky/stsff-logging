@@ -30,6 +30,10 @@
 
 #include "ph/stdafx.h"
 
+#ifndef NDEBUG
+#   define STSFF_LOGGER_USE_FULL_SOURCES_PATH
+#endif
+
 #include <sstream>
 #include <stsff/logging/BaseLogger.h>
 #include <stsff/logging/utils/Colorize.h>

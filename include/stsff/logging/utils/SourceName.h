@@ -49,7 +49,8 @@ namespace logging {
 
     /*!
      * \brief Extracts only file name from source path  
-     *        if \link STSFF_LOGGER_USE_FULL_SOURCES_PATH \endlink isn't presented.
+     *        if \link STSFF_LOGGER_USE_FULL_SOURCES_PATH \endlink isn't presented
+     *        otherwise full path returned
      * \return file name or source path.
      */
 #ifdef STSFF_LOGGER_USE_FULL_SOURCES_PATH

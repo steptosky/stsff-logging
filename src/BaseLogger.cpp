@@ -30,7 +30,6 @@
 
 #include "stdafx.h"
 
-#include <mutex>
 #include <ctime>
 #include <algorithm>
 #include "stsff/logging/BaseLogger.h"
@@ -124,13 +123,6 @@ namespace logging {
     /**************************************************************************************************/
     //////////////////////////////////////////* Functions */////////////////////////////////////////////
     /**************************************************************************************************/
-
-    void BaseLogger::defaultThreadSafeHandler(const BaseLogger & logger, const LogMsg & logMsg, std::ostream & stream,
-                                              const std::string & formatting, const ColorFn color) {
-        static std::mutex mutex;
-        std::lock_guard<std::mutex> lock(mutex);
-        defaultHandler(logger, logMsg, stream, formatting, color);
-    }
 
     void BaseLogger::defaultHandler(const BaseLogger & logger, const LogMsg & logMsg, std::ostream & stream,
                                     const std::string & formatting, const ColorFn color) {

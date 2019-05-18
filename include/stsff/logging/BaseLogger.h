@@ -136,7 +136,6 @@ namespace logging {
 
         /*!
          * \see \link BaseLogger::defaultHandler \endlink
-         * \see \link BaseLogger::defaultThreadSafeHandler \endlink
          */
         typedef std::function<void(const BaseLogger * logger, const LogMsg & logMsg)> CallBack;
 
@@ -243,17 +242,6 @@ namespace logging {
                                               std::ostream & stream,
                                               const std::string & formatting,
                                               ColorFn color);
-
-        /*!
-		 * \details Thread safe version of the default handler.
-         * \pre It uses internal static mutex.
-         *      Make sure the behaviour is expected for your use case.
-         * \copydoc BaseLogger::defaultHandler
-         */
-        LoggingExp static void defaultThreadSafeHandler(const BaseLogger & logger, const LogMsg & logMsg,
-                                                        std::ostream & stream,
-                                                        const std::string & formatting,
-                                                        ColorFn color);
 
         /*!
          * \details Makes timestamp string.

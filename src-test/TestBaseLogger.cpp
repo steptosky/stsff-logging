@@ -314,27 +314,11 @@ TEST(BaseLogger, invalid_callback_data_time_command_case3) {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /**************************************************************************************************/
 
-TEST(BaseLogger, threadsafe_simple_test) {
-    std::stringstream stream;
-    BaseLogger logger;
-    logger.setHandler(BaseLogger::LvlDebug, [&](const BaseLogger & l, const BaseLogger::LogMsg & logMsg) {
-        BaseLogger::defaultThreadSafeHandler(l, logMsg, stream, "DBG: %LC %MC %MS", nullptr);
-    });
-    //---------------
-    LogMessage(logger).debug() << "message" << LPush;
-    const auto result = stream.str();
-    ASSERT_STREQ("DBG:   message\n", result.c_str());
-}
-
-/**************************************************************************************************/
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/**************************************************************************************************/
-
 TEST(LogMessage, abort) {
     std::stringstream stream;
     BaseLogger logger;
     logger.setHandler(BaseLogger::LvlWarning, [&](const BaseLogger & l, const BaseLogger::LogMsg & logMsg) {
-        BaseLogger::defaultThreadSafeHandler(l, logMsg, stream, "WRN: %LC %MC %MS", colorize::yellow);
+        BaseLogger::defaultHandler(l, logMsg, stream, "WRN: %LC %MC %MS", colorize::yellow);
     });
     //---------------
     LogMessage msg(logger);

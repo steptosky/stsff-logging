@@ -346,7 +346,7 @@ namespace logging {
         }
 
         /*!
-         * \brief Write message with space at the end.
+         * \brief Write message with the space between.
          * \details Example: writeSp(1,2,3) -> "1 2 3 "
          * \pre This function takes 2 or more arguments.
          * \see \link LogMessage::write \endlink

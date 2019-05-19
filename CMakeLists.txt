@@ -52,7 +52,7 @@ project(${ProjectId} LANGUAGES "CXX")
 # Info file
 
 include(StsInfoFilesGenerator)
-genInfoFile("${DESCRIPTION_FILE}" "${CMAKE_SOURCE_DIR}/include/stsff/logging/Info.h")
+genInfoFile("cmake/StsProjectDesc.cmake" "${CMAKE_SOURCE_DIR}/include/stsff/logging/Info.h")
 
 #----------------------------------------------------------------------------------#
 #//////////////////////////////////////////////////////////////////////////////////#

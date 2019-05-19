@@ -46,43 +46,43 @@ namespace logging {
         : BaseLogger(category, {
                 {
                     LvlDebug, [](const BaseLogger & l, const LogMsg & m) {
-                        defaultHandler(l, m, std::clog, "DBG: %LC %MC %MS", colorize::magenta);
+                        defaultHandler(l, m, std::clog, "DBG: %LN %MC %MS", colorize::magenta);
                     }
                 },
                 {
                     LvlMsg, [](const BaseLogger & l, const LogMsg & m) {
-                        defaultHandler(l, m, std::clog, "--  %LC %MC %MS", nullptr);
+                        defaultHandler(l, m, std::clog, "--  %LN %MC %MS", nullptr);
                     }
 
                 },
                 {
                     LvlInfo, [](const BaseLogger & l, const LogMsg & m) {
-                        defaultHandler(l, m, std::clog, "INF: %LC %MC %MS", colorize::cyan);
+                        defaultHandler(l, m, std::clog, "INF: %LN %MC %MS", colorize::cyan);
                     }
                 },
                 {
                     LvlSuccess, [](const BaseLogger & l, const LogMsg & m) {
-                        defaultHandler(l, m, std::clog, "INF: %LC %MC %MS | OK", colorize::green);
+                        defaultHandler(l, m, std::clog, "INF: %LN %MC %MS | OK", colorize::green);
                     }
                 },
                 {
                     LvlWarning, [](const BaseLogger & l, const LogMsg & m) {
-                        defaultHandler(l, m, std::clog, "WRN: %LC %MC %MS", colorize::yellow);
+                        defaultHandler(l, m, std::clog, "WRN: %LN %MC %MS", colorize::yellow);
                     }
                 },
                 {
                     LvlFail, [](const BaseLogger & l, const LogMsg & m) {
-                        defaultHandler(l, m, std::clog, "ERR: %LC %MC %MS | FAIL\n\t[%TM(%Y-%m-%d] [%T)] [%FN -> %FI(%LI)]", colorize::red);
+                        defaultHandler(l, m, std::clog, "ERR: %LN %MC %MS | FAIL\n\t[%TM(%Y-%m-%d] [%T)] [%FN -> %FI(%LI)]", colorize::red);
                     }
                 },
                 {
                     LvlError, [](const BaseLogger & l, const LogMsg & m) {
-                        defaultHandler(l, m, std::cerr, "ERR: %LC %MC %MS \n\t[%TM(%Y-%m-%d] [%T)] [%FN -> %FI(%LI)]", colorize::red);
+                        defaultHandler(l, m, std::cerr, "ERR: %LN %MC %MS \n\t[%TM(%Y-%m-%d] [%T)] [%FN -> %FI(%LI)]", colorize::red);
                     }
                 },
                 {
                     LvlCritical, [](const BaseLogger & l, const LogMsg & m) {
-                        defaultHandler(l, m, std::cerr, "ERR: %LC %MC %MS \n\t[%TM(%Y-%m-%d] [%T)] [%FN -> %FI(%LI)]", colorize::red);
+                        defaultHandler(l, m, std::cerr, "ERR: %LN %MC %MS \n\t[%TM(%Y-%m-%d] [%T)] [%FN -> %FI(%LI)]", colorize::red);
                     }
                 },
         }) { }
@@ -112,7 +112,7 @@ namespace logging {
             else {
                 const auto formatting = std::string("LVL(")
                                         .append(std::to_string(logMsg.mLevel))
-                                        .append("): %LC %MC %MS \n\t[%FN -> %FI(%LI)]");
+                                        .append("): %LN %MC %MS \n\t[%FN -> %FI(%LI)]");
                 defaultHandler(*this, logMsg, std::cout, formatting, colorize::yellow);
             }
         }
@@ -140,7 +140,7 @@ namespace logging {
                                     const std::string & formatting, const ColorFn color) {
 
         const std::uint32_t time = ('T' << 8) | 'M';
-        const std::uint32_t logCategory = ('L' << 8) | 'C';
+        const std::uint32_t logCategory = ('L' << 8) | 'N';
         const std::uint32_t messageCategory = ('M' << 8) | 'C';
         const std::uint32_t message = ('M' << 8) | 'S';
         const std::uint32_t functionName = ('F' << 8) | 'N';

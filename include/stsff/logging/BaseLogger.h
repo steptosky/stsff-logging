@@ -226,7 +226,7 @@ namespace logging {
          * \details A default callback for log printing.
          * \details Setup example:
          *          \li \%TM - time that takes format string for the std::strftime function inside brackets.
-         *          \li \%LC - log category.
+         *          \li \%LN - log name.
          *          \li \%MC - message category.
          *          \li \%MS - message.
          *          \li \%FN - function name.

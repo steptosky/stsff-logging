@@ -51,7 +51,7 @@ TEST(BaseLogger, variadic) {
     std::stringstream stream;
     BaseLogger logger("log-category");
     logger.setHandler(BaseLogger::LvlMsg, [&](const BaseLogger & l, const BaseLogger::LogMsg & logMsg) {
-        BaseLogger::defaultHandler(l, logMsg, stream, "%LC,%MC,%MS,%FN,%FI,%LI", nullptr);
+        BaseLogger::defaultHandler(l, logMsg, stream, "%LN,%MC,%MS,%FN,%FI,%LI", nullptr);
     });
     //---------------
     LogMessage(logger).setCategory("msg-cat").write("message1", "message2", "message3").push();
@@ -72,7 +72,7 @@ TEST(BaseLogger, formatting) {
     std::stringstream stream;
     BaseLogger logger("log-category");
     logger.setHandler(BaseLogger::LvlMsg, [&](const BaseLogger & l, const BaseLogger::LogMsg & logMsg) {
-        BaseLogger::defaultHandler(l, logMsg, stream, "%LC,%MC,%MS,%FN,%FI,%LI", nullptr);
+        BaseLogger::defaultHandler(l, logMsg, stream, "%LN,%MC,%MS,%FN,%FI,%LI", nullptr);
     });
     //---------------
     LogMessage(logger).setCategory("msg-cat").message() << "message" << LPush;
@@ -89,7 +89,7 @@ TEST(BaseLogger, formatting_custom_level) {
     std::stringstream stream;
     BaseLogger logger;
     logger.setHandler(BaseLogger::eLevel(5), [&](const BaseLogger & l, const BaseLogger::LogMsg & logMsg) {
-        BaseLogger::defaultHandler(l, logMsg, stream, "5,%LC,%MC,%MS,%FN,%FI,%LI", nullptr);
+        BaseLogger::defaultHandler(l, logMsg, stream, "5,%LN,%MC,%MS,%FN,%FI,%LI", nullptr);
     });
     //---------------
     LogMessage(logger).level(5) << "message" << LPush;
@@ -119,10 +119,10 @@ TEST(BaseLogger, formatting_level) {
     std::stringstream stream;
     BaseLogger logger;
     logger.setHandler(BaseLogger::LvlInfo, [&](const BaseLogger & l, const BaseLogger::LogMsg & logMsg) {
-        BaseLogger::defaultHandler(l, logMsg, stream, "INF: %LC %MC %MS", colorize::cyan);
+        BaseLogger::defaultHandler(l, logMsg, stream, "INF: %LN %MC %MS", colorize::cyan);
     });
     logger.setHandler(BaseLogger::LvlWarning, [&](const BaseLogger & l, const BaseLogger::LogMsg & logMsg) {
-        BaseLogger::defaultHandler(l, logMsg, stream, "WRN: %LC %MC %MS", colorize::yellow);
+        BaseLogger::defaultHandler(l, logMsg, stream, "WRN: %LN %MC %MS", colorize::yellow);
     });
     logger.setLevel(BaseLogger::LvlWarning);
     //---------------
@@ -141,7 +141,7 @@ TEST(BaseLogger, formatting_sources_only_filename_case1) {
     std::stringstream stream;
     BaseLogger logger;
     logger.setHandler(BaseLogger::LvlMsg, [&](const BaseLogger & l, const BaseLogger::LogMsg & logMsg) {
-        BaseLogger::defaultHandler(l, logMsg, stream, "--  %LC %MC %MS", nullptr);
+        BaseLogger::defaultHandler(l, logMsg, stream, "--  %LN %MC %MS", nullptr);
     });
     //---------------
     LMessage(logger) << "message" << LPush;
@@ -318,7 +318,7 @@ TEST(LogMessage, abort) {
     std::stringstream stream;
     BaseLogger logger;
     logger.setHandler(BaseLogger::LvlWarning, [&](const BaseLogger & l, const BaseLogger::LogMsg & logMsg) {
-        BaseLogger::defaultHandler(l, logMsg, stream, "WRN: %LC %MC %MS", colorize::yellow);
+        BaseLogger::defaultHandler(l, logMsg, stream, "WRN: %LN %MC %MS", colorize::yellow);
     });
     //---------------
     LogMessage msg(logger);

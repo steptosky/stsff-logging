@@ -72,7 +72,7 @@ namespace logging {
                 },
                 {
                     LvlFail, [](const BaseLogger & l, const LogMsg & m) {
-                        defaultHandler(l, m, std::clog, "ERR: %LN %MC %MS | FAIL\n\t[%TM(%Y-%m-%d] [%T)] [%FN -> %FI(%LI)]", colorize::red);
+                        defaultHandler(l, m, std::cerr, "ERR: %LN %MC %MS | FAIL\n\t[%TM(%Y-%m-%d] [%T)] [%FN -> %FI(%LI)]", colorize::red);
                     }
                 },
                 {

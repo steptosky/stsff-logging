@@ -278,6 +278,8 @@ namespace logging {
      *       The macros use \link sourcePath \endlink for extracting file name instead of full source path.
      *       You can define STSFF_LOGGER_USE_FULL_SOURCES_PATH to change this behaviour.
      *       If you write your own macros you may want to use function \link sourceFileName \endlink.
+     * \details If the logger macros conflict with your ones or you want to define your own
+     *          you can define STSFF_LOGGER_DON_NOT_USE_MACROS to disable default logger's macros.
      * \details The message will be printed when destructor is called
      *       or if you manually forced printing with the method \link LogMessage::push() \endlink
      *       or operator << with \link LogMessage::CmdPush \endlink param.
@@ -484,7 +486,7 @@ namespace logging {
  * \details define this macro if you have macro conflicts 
  *          and then make your one macros like this.
  */
-#ifndef STSFF_LOGGER_DONT_USE_MACROS
+#ifndef STSFF_LOGGER_DON_NOT_USE_MACROS
 
 // Log messages
 

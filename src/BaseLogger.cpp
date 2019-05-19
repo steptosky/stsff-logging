@@ -46,33 +46,33 @@ namespace logging {
         : BaseLogger(category, {
                 {
                     LvlDebug, [](const BaseLogger & l, const LogMsg & m) {
-                        defaultHandler(l, m, std::cout, "DBG: %LC %MC %MS", colorize::magenta);
+                        defaultHandler(l, m, std::clog, "DBG: %LC %MC %MS", colorize::magenta);
                     }
                 },
                 {
                     LvlMsg, [](const BaseLogger & l, const LogMsg & m) {
-                        defaultHandler(l, m, std::cout, "--  %LC %MC %MS", nullptr);
+                        defaultHandler(l, m, std::clog, "--  %LC %MC %MS", nullptr);
                     }
 
                 },
                 {
                     LvlInfo, [](const BaseLogger & l, const LogMsg & m) {
-                        defaultHandler(l, m, std::cout, "INF: %LC %MC %MS", colorize::cyan);
+                        defaultHandler(l, m, std::clog, "INF: %LC %MC %MS", colorize::cyan);
                     }
                 },
                 {
                     LvlSuccess, [](const BaseLogger & l, const LogMsg & m) {
-                        defaultHandler(l, m, std::cout, "INF: %LC %MC %MS | OK", colorize::green);
+                        defaultHandler(l, m, std::clog, "INF: %LC %MC %MS | OK", colorize::green);
                     }
                 },
                 {
                     LvlWarning, [](const BaseLogger & l, const LogMsg & m) {
-                        defaultHandler(l, m, std::cout, "WRN: %LC %MC %MS", colorize::yellow);
+                        defaultHandler(l, m, std::clog, "WRN: %LC %MC %MS", colorize::yellow);
                     }
                 },
                 {
                     LvlFail, [](const BaseLogger & l, const LogMsg & m) {
-                        defaultHandler(l, m, std::cerr, "ERR: %LC %MC %MS | FAIL\n\t[%TM(%Y-%m-%d] [%T)] [%FN -> %FI(%LI)]", colorize::red);
+                        defaultHandler(l, m, std::clog, "ERR: %LC %MC %MS | FAIL\n\t[%TM(%Y-%m-%d] [%T)] [%FN -> %FI(%LI)]", colorize::red);
                     }
                 },
                 {
@@ -86,6 +86,18 @@ namespace logging {
                     }
                 },
         }) { }
+
+    BaseLogger::~BaseLogger() noexcept {
+        try {
+            std::clog.flush();
+        }
+        catch (const std::exception & e) {
+            std::cerr << colorize::red << e.what() << " [" << __STS_FUNC_NAME__ << "]" << colorize::reset << std::endl;
+        }
+        catch (...) {
+            std::cerr << colorize::red << "unknown exception [" << __STS_FUNC_NAME__ << "]" << colorize::reset << std::endl;
+        }
+    }
 
     /**************************************************************************************************/
     //////////////////////////////////////////* Functions */////////////////////////////////////////////

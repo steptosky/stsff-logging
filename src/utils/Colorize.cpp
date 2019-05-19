@@ -87,8 +87,11 @@ namespace logging {
             if (&stream == &std::cout) {
                 return stdout;
             }
-            if (&stream == &std::cerr || &stream == &std::clog) {
+            if (&stream == &std::cerr) {
                 return stderr;
+            }
+            if (&stream == &std::clog) {
+                return stdout;
             }
             return nullptr;
         }
@@ -142,6 +145,9 @@ namespace logging {
             }
             else if (&stream == &std::cerr) {
                 hTerminal = GetStdHandle(STD_ERROR_HANDLE);
+            }
+            else if (&stream == &std::clog) {
+                hTerminal = GetStdHandle(STD_OUTPUT_HANDLE);
             }
 
             // save default terminal attributes if it unsaved
@@ -205,8 +211,8 @@ namespace logging {
 
         std::ostream & red(std::ostream & stream) {
             if (isColorized(stream)) {
-                COLORIZE_ON_MACOS( stream << "\033[31m");
-                COLORIZE_ON_LINUX( stream << "\033[31m");
+                COLORIZE_ON_MACOS(stream << "\033[31m");
+                COLORIZE_ON_LINUX(stream << "\033[31m");
                 COLORIZE_ON_WINDOWS(winChangeAttributes(stream, FOREGROUND_RED | FOREGROUND_INTENSITY));
             }
             return stream;

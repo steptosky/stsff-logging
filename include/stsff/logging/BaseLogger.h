@@ -149,7 +149,7 @@ namespace logging {
             : mLevels(std::move(levelsConf)),
               mCategory(category.data(), category.size()) {}
 
-        virtual ~BaseLogger() = default;
+        LoggingExp virtual ~BaseLogger() noexcept;
 
         BaseLogger(const BaseLogger &) = default;
         BaseLogger(BaseLogger &&) = default;

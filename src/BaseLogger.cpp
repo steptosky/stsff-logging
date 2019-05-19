@@ -272,15 +272,23 @@ namespace logging {
     //////////////////////////////////////////* Functions */////////////////////////////////////////////
     /**************************************************************************************************/
 
-    void LogMessage::push() {
-        if (mPushed || mLogMsg.mLevel > mLog->printLevel() || !mLog) {
+    void LogMessage::push() noexcept {
+        if (mPushed || !mLog || mLogMsg.mLevel > mLog->printLevel()) {
             return;
         }
         mPushed = true;
-        const auto str = mStream.str();
-        if (!str.empty()) {
-            mLogMsg.mMsg = BaseLogger::StringView(str.data(), str.length());
-            mLog->log(mLogMsg);
+        try {
+            const auto str = string();
+            if (!str.empty()) {
+                mLogMsg.mMsg = BaseLogger::StringView(str.data(), str.length());
+                mLog->log(mLogMsg);
+            }
+        }
+        catch (const std::exception & e) {
+            std::cerr << colorize::red << e.what() << " [" << __STS_FUNC_NAME__ << "]" << colorize::reset << std::endl;
+        }
+        catch (...) {
+            std::cerr << colorize::red << "unknown exception [" << __STS_FUNC_NAME__ << "]" << colorize::reset << std::endl;
         }
     }
 

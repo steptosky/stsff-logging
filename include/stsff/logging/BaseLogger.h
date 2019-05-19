@@ -317,10 +317,10 @@ namespace logging {
             push();
         }
 
-        LogMessage(const LogMessage&) = delete;
-        LogMessage(LogMessage&&) = default;
-        LogMessage& operator=(const LogMessage&) = delete;
-        LogMessage& operator=(LogMessage&&) = default;
+        LogMessage(const LogMessage &) = delete;
+        LogMessage(LogMessage &&) = default;
+        LogMessage & operator=(const LogMessage &) = delete;
+        LogMessage & operator=(LogMessage &&) = default;
 
         /// @}
         //---------------------------------------------------------------
@@ -436,7 +436,7 @@ namespace logging {
          * \details If message was aborted with \link LogMessage::abort \endlink
          *          this method will not have any effects.
          */
-        LoggingExp void push();
+        LoggingExp void push() noexcept;
 
         /*!
          * \brief Prevents printing the message.

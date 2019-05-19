@@ -364,7 +364,7 @@ namespace logging {
             return *this;
         }
 
-        LogMessage & operator<<(const CmdPush &) {
+        LogMessage & operator<<(const CmdPush &) noexcept {
             push();
             return *this;
         }
@@ -385,42 +385,42 @@ namespace logging {
          * \param [in] level
          */
         template<typename T>
-        LogMessage & level(const T level) {
+        LogMessage & level(const T level) noexcept {
             static_assert(std::numeric_limits<T>::is_integer,
                 "This method can be used for the integers types only. See also BaseLogger::eLevel.");
             mLogMsg.mLevel = BaseLogger::eLevel(level);
             return *this;
         }
 
-        LogMessage & critical() { return level(static_cast<std::size_t>(BaseLogger::LvlCritical)); }
-        LogMessage & error() { return level(static_cast<std::size_t>(BaseLogger::LvlError)); }
-        LogMessage & fail() { return level(static_cast<std::size_t>(BaseLogger::LvlFail)); }
-        LogMessage & warning() { return level(static_cast<std::size_t>(BaseLogger::LvlWarning)); }
-        LogMessage & success() { return level(static_cast<std::size_t>(BaseLogger::LvlSuccess)); }
-        LogMessage & info() { return level(static_cast<std::size_t>(BaseLogger::LvlInfo)); }
-        LogMessage & message() { return level(static_cast<std::size_t>(BaseLogger::LvlMsg)); }
-        LogMessage & debug() { return level(static_cast<std::size_t>(BaseLogger::LvlDebug)); }
+        LogMessage & critical() noexcept { return level(static_cast<std::size_t>(BaseLogger::LvlCritical)); }
+        LogMessage & error() noexcept { return level(static_cast<std::size_t>(BaseLogger::LvlError)); }
+        LogMessage & fail() noexcept { return level(static_cast<std::size_t>(BaseLogger::LvlFail)); }
+        LogMessage & warning() noexcept { return level(static_cast<std::size_t>(BaseLogger::LvlWarning)); }
+        LogMessage & success() noexcept { return level(static_cast<std::size_t>(BaseLogger::LvlSuccess)); }
+        LogMessage & info() noexcept { return level(static_cast<std::size_t>(BaseLogger::LvlInfo)); }
+        LogMessage & message() noexcept { return level(static_cast<std::size_t>(BaseLogger::LvlMsg)); }
+        LogMessage & debug() noexcept { return level(static_cast<std::size_t>(BaseLogger::LvlDebug)); }
 
         /// @}
         //---------------------------------------------------------------
         /// @{
 
-        LogMessage & setCategory(const StringView category) {
+        LogMessage & setCategory(const StringView category) noexcept {
             mLogMsg.mCategory = category;
             return *this;
         }
 
-        LogMessage & setFunction(const StringView fn) {
+        LogMessage & setFunction(const StringView fn) noexcept {
             mLogMsg.mFunction = fn;
             return *this;
         }
 
-        LogMessage & setFile(const StringView file) {
+        LogMessage & setFile(const StringView file) noexcept {
             mLogMsg.mFile = file;
             return *this;
         }
 
-        LogMessage & setFileLine(const int line) {
+        LogMessage & setFileLine(const int line) noexcept {
             mLogMsg.mLine = line;
             return *this;
         }
@@ -441,7 +441,7 @@ namespace logging {
         /*!
          * \brief Prevents printing the message.
          */
-        void abort() {
+        void abort() noexcept {
             mPushed = true;
         }
 

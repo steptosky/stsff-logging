@@ -287,7 +287,7 @@ namespace logging {
      * }
      * \endcode
      */
-    class LogMessage {
+    class LogMessage final {
     public:
 
         typedef BaseLogger::StringView StringView;
@@ -313,9 +313,14 @@ namespace logging {
             assert(mLog);
         }
 
-        virtual ~LogMessage() {
+        ~LogMessage() {
             push();
         }
+
+        LogMessage(const LogMessage&) = delete;
+        LogMessage(LogMessage&&) = default;
+        LogMessage& operator=(const LogMessage&) = delete;
+        LogMessage& operator=(LogMessage&&) = default;
 
         /// @}
         //---------------------------------------------------------------

@@ -73,7 +73,7 @@ set(ProjectOrganizationWebLink "www.flightfactor.aero")
 # Project info
 
 set(ProjectName "stsff-logging")
-set(ProjectFullName "stsff-cpp-logging")
+set(ProjectFullName "stsff-logging")
 set(ProjectDescription "Library for logging")
 set(ProjectWebLink "")
 set(ProjectSourcesWebLink "https://github.com/steptosky/stsff-logging")
@@ -85,15 +85,15 @@ set(ProjectId ${ProjectName})
 # Version / Dependency's system
 
 # Set it to ON if you are in unstable branch otherwise set it to OFF
-set(ProjectVersionSnapshot ON)
-set(ProjectVersionMajor 0)
-set(ProjectVersionMinor 1)
+set(ProjectVersionSnapshot OFF)
+set(ProjectVersionMajor 1)
+set(ProjectVersionMinor 0)
 set(ProjectVersionPatch 0)
 set(ProjectVersion "${ProjectVersionMajor}.${ProjectVersionMinor}.${ProjectVersionPatch}")
 
 # You can use any string you wish, 
 # but i will be changed to snapshot if it is enabled. 
-set(ProjectReleaseType "")
+# set(ProjectReleaseType)
 if (ProjectVersionSnapshot)
     set(ProjectReleaseType "snapshot")
 endif()

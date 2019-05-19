@@ -16,7 +16,7 @@ using namespace stsff::logging;
 BaseLogger logger("my-logger");
 LMessage(logger) << "my message";
 
-LVar(logVar, logger).message() << " declare variable logVar and set the level";
+LVar(logVar, logger).message() << "declare variable logVar and set the level";
 logVar << "can use the logVar now";
 
 // see documentation for more information

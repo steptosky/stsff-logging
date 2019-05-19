@@ -52,7 +52,7 @@ namespace logging {
      * \details Default levels handler is \link BaseLogger::defaultHandler \endlink
      * \details The logger supports categories for logger and messages.
      * \code 
-     * BaseLogger::setLogCategoryName("my logger category");
+     * BaseLogger::setName("my logger category");
      * LMessage(logger).setCategory("my message category") << "my message";
      * LcMessage(logger, "my message category") << "my message";
      * \endcode
@@ -199,24 +199,24 @@ namespace logging {
          *          Default is \link BaseLogger::LvlDebug \endlink
          * \param [in] level
          */
-        void setPrintLevel(const std::size_t level) { mLevel = level; }
+        void setLevel(const std::size_t level) { mLevel = level; }
 
         /*!
          * \return current level printing.
          */
-        std::size_t printLevel() const { return mLevel; }
+        std::size_t level() const { return mLevel; }
 
         /*!
          * \details Set log category name.
          * \param [in] category
          */
-        void setLogCategoryName(const std::string & category) { mCategory = category; }
+        void setName(const std::string & category) { mCategory = category; }
 
         /*!
          * \details Get log category name.
          * \return log category name.
          */
-        const std::string & logCategoryName() const { return mCategory; }
+        const std::string & name() const { return mCategory; }
 
         /// @}
         //---------------------------------------------------------------

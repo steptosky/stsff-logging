@@ -285,7 +285,7 @@ namespace logging {
     /**************************************************************************************************/
 
     void LogMessage::push() noexcept {
-        if (mPushed || !mLog || mLogMsg.mLevel > mLog->printLevel()) {
+        if (mPushed || !mLog || mLogMsg.mLevel > mLog->level()) {
             return;
         }
         mPushed = true;

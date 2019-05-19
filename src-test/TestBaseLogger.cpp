@@ -124,7 +124,7 @@ TEST(BaseLogger, formatting_level) {
     logger.setHandler(BaseLogger::LvlWarning, [&](const BaseLogger & l, const BaseLogger::LogMsg & logMsg) {
         BaseLogger::defaultHandler(l, logMsg, stream, "WRN: %LC %MC %MS", colorize::yellow);
     });
-    logger.setPrintLevel(BaseLogger::LvlWarning);
+    logger.setLevel(BaseLogger::LvlWarning);
     //---------------
     LogMessage(logger).info() << "message" << LPush;
     auto result = stream.str();

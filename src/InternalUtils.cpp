@@ -1,5 +1,6 @@
 /*
-**  Copyright(C) 2018, StepToSky
+**  Copyright(C) 2019, StepToSky and FlightFactor
+**  All rights reserved
 **
 **  Redistribution and use in source and binary forms, with or without
 **  modification, are permitted provided that the following conditions are met:
@@ -9,9 +10,9 @@
 **  2.Redistributions in binary form must reproduce the above copyright notice,
 **    this list of conditions and the following disclaimer in the documentation
 **    and / or other materials provided with the distribution.
-**  3.Neither the name of StepToSky nor the names of its contributors
-**    may be used to endorse or promote products derived from this software
-**    without specific prior written permission.
+**  3.The name of StepToSky or the name of FlightFactor or the names of its
+**    contributors may NOT be used to endorse or promote products derived from
+**    this software without specific prior written permission.
 **
 **  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
 **  ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
@@ -24,7 +25,7 @@
 **  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 **  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 **
-**  Contacts: www.steptosky.com
+**  Contacts: www.steptosky.com or www.flightfactor.aero
 */
 
 #include "stdafx.h"

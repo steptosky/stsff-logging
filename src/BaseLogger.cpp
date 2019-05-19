@@ -42,8 +42,9 @@ namespace logging {
     ////////////////////////////////////* Constructors/Destructor */////////////////////////////////////
     /**************************************************************************************************/
 
-    BaseLogger::BaseLogger(const StringView category)
-        : BaseLogger(category, {
+    ///! [setup handlers]
+    BaseLogger::BaseLogger(const StringView name)
+        : BaseLogger(name, {
                 {
                     LvlDebug, [](const BaseLogger & l, const LogMsg & m) {
                         defaultHandler(l, m, std::clog, "DBG: %LN %MC %MS", colorize::magenta);
@@ -86,6 +87,10 @@ namespace logging {
                     }
                 },
         }) { }
+
+    ///! [setup handlers]
+
+    //-------------------------------------------------------------------------
 
     BaseLogger::~BaseLogger() noexcept {
         try {

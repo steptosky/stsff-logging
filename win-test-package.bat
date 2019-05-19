@@ -16,7 +16,7 @@ set CONAN_ARCHS=x86_64
 call python build.py
 
 :: uncomment next line if you want to remove all packages from all versions from specified channel
-:: call conan remove your_lib_name/*stsff/testing -f
+:: call conan remove stsff-logging/*stsff/testing -f
 
 pause
 

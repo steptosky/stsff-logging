@@ -47,23 +47,32 @@ namespace logging {
 
     /*!
      * \brief This is a base logger interface.
-     * \details By default it prints all messages to std::cout and std::cerr.
+     * \details This log is useful on library border when you have to print some log but
+     *          don't want to think where it should be actually printed, you can
+     *          decide it on consumer's side.
+     * \details By default it prints all messages to std::clog and std::cerr.
      * \details Default log level is \"LvlDebug\".
-     * \details Default levels handler is \link BaseLogger::defaultHandler \endlink
-     * \details The logger supports categories for logger and messages.
+     * \details The logger supports name for logger and categories for messages.
      * \code 
-     * BaseLogger::setName("my logger category");
+     * BaseLogger::setName("my logger name");
      * LMessage(logger).setCategory("my message category") << "my message";
      * LcMessage(logger, "my message category") << "my message";
      * \endcode
-     * \note You can define log printing for your own types. \see \link LogMessage \endlink
+     * \note You can define log printing for your own types.
      * \note You can define your own levels and its handler as this is just std::size_t.
      * \note You can define your own handler for any level with std::bind or lambda.
-     * \code 
-	 * BaseLogger::setHandler(BaseLogger::LvlDebug, std::bind(defaultHandler, std::placeholders::_1, std::placeholders::_2,
-     *                                                        std::vector<std::ostream*>{&std::cout}, 
-     *                                                        "DBG: %LC %MC %MS", colorize::magenta)) 
+     * \code
+	 * BaseLogger::setHandler(BaseLogger::LvlSuccess, [](const BaseLogger & l, const LogMsg & m) {
+     *          defaultHandler(l, m, std::clog, "INF: %LN %MC %MS | OK", colorize::green);
+     *     });
      * \endcode
+     * 
+     * \see \link LogMessage \endlink
+     * 
+     * \details Default handlers setup:
+     * \details \link BaseLogger::defaultHandler \endlink
+     * \snippet BaseLogger.cpp setup handlers
+     * 
      */
     class BaseLogger {
     public:
@@ -76,7 +85,7 @@ namespace logging {
         /*!
          * \brief Predefined log levels
          * \details This has interval 100 so
-         *          you can easily specify your own levels
+         *          you can easily add your own level
          *          between this standard ones.
          */
         enum eLevel : std::size_t {
@@ -95,7 +104,7 @@ namespace logging {
         /// @{
 
         /*! 
-         * \brief Represents a log message.
+         * \brief Represents a log message for the logger.
          */
         struct LogMsg {
             LogMsg(const std::size_t lvl, const StringView category, const StringView msg,
@@ -143,11 +152,11 @@ namespace logging {
         //---------------------------------------------------------------
         /// @{
 
-        LoggingExp explicit BaseLogger(StringView category = StringView());
+        LoggingExp explicit BaseLogger(StringView name = StringView());
 
-        explicit BaseLogger(const StringView category, LevelHandlers levelsConf)
+        explicit BaseLogger(const StringView name, LevelHandlers levelsConf)
             : mLevels(std::move(levelsConf)),
-              mCategory(category.data(), category.size()) {}
+              mCategory(name.data(), name.size()) {}
 
         LoggingExp virtual ~BaseLogger() noexcept;
 
@@ -161,8 +170,9 @@ namespace logging {
         /// @{
 
         /*!
-         * \details Logs specified message.
+         * \details Print a message.
          * \details Usually developers should not call this method directly.
+         *          Use \link LogMessage \endlink
          * \param [in] logMsg
          */
         LoggingExp void log(const LogMsg & logMsg) const;
@@ -179,14 +189,12 @@ namespace logging {
         LoggingExp void setHandler(std::size_t level, const LevelHandler & handler) noexcept;
 
         /*!
-         * \details Get the levels handler map.
-         * \return levels handler map.
+         * \return Levels handler map.
          */
         const LevelHandlers & handlers() const { return mLevels; }
 
         /*!
-         * \details Get the levels handler map
-         * \return levels handler map.
+         * \return Levels handler map.
          */
         LevelHandlers & handlers() { return mLevels; }
 
@@ -202,19 +210,18 @@ namespace logging {
         void setLevel(const std::size_t level) { mLevel = level; }
 
         /*!
-         * \return current level printing.
+         * \return Current level for printing.
          */
         std::size_t level() const { return mLevel; }
 
         /*!
-         * \details Set log category name.
-         * \param [in] category
+         * \details Set logger name.
+         * \param [in] name
          */
-        void setName(const std::string & category) { mCategory = category; }
+        void setName(const std::string & name) { mCategory = name; }
 
         /*!
-         * \details Get log category name.
-         * \return log category name.
+         * \return Logger name.
          */
         const std::string & name() const { return mCategory; }
 
@@ -223,9 +230,9 @@ namespace logging {
         /// @{
 
         /*!
-         * \details A default callback for log printing.
-         * \details Setup example:
-         *          \li \%TM - time that takes format string for the std::strftime function inside brackets.
+         * \details Default handler for log printing.
+         * \details Formatting example: \code "ERR: %LN %MC [%TM(%Y-%m-%d %T)] %MS \n\t[%FN -> %FI(%LI)]" \endcode
+         *          \li \%TM(\%Y-\%m-\%d \%T) - time that takes format string for the std::strftime function inside brackets.
          *          \li \%LN - log name.
          *          \li \%MC - message category.
          *          \li \%MS - message.
@@ -235,13 +242,11 @@ namespace logging {
          * \param [in] logger
          * \param [in] logMsg
          * \param [in] stream
-         * \param [in] formatting example \code "ERR: %LC %MC [%TM(%Y-%m-%d %T)] %MS \n\t[%FN -> %FI(%LI)]" \endcode
+         * \param [in] formatting
          * \param [in] color
          */
-        LoggingExp static void defaultHandler(const BaseLogger & logger, const LogMsg & logMsg,
-                                              std::ostream & stream,
-                                              const std::string & formatting,
-                                              ColorFn color);
+        LoggingExp static void defaultHandler(const BaseLogger & logger, const LogMsg & logMsg, std::ostream & stream,
+                                              const std::string & formatting, ColorFn color);
 
         /*!
          * \details Makes timestamp string.
@@ -270,14 +275,17 @@ namespace logging {
      * \details Represents one log message.
      * \note In normal way you should not use this class directly use the macros instead.
      * \code LWarning(logger) << "My warning"; \endcode
-     * \note The message will be printed when destructor is called
+     *       The macros use \link sourcePath \endlink for extracting file name instead of full source path.
+     *       You can define STSFF_LOGGER_USE_FULL_SOURCES_PATH to change this behaviour.
+     *       If you write your own macros you may want to use function \link sourceFileName \endlink.
+     * \details The message will be printed when destructor is called
      *       or if you manually forced printing with the method \link LogMessage::push() \endlink
      *       or operator << with \link LogMessage::CmdPush \endlink param.
      *       Also you can use the macro LPush.
      * \code LWarning(logger) << "My warning" << LPush; \endcode
      *       It can be needed when you process the exceptions or
      *       want printing the message before its destructor calls.
-     * \note As the class has template operator << you can define log printing for your own types.
+     * \details As the class has template operator << you can define log printing for your own types.
      * \code
      * // define somewhere
      * template<>
@@ -286,6 +294,7 @@ namespace logging {
      *     return *this;
      * }
      * \endcode
+     * 
      */
     class LogMessage final {
     public:
@@ -328,7 +337,7 @@ namespace logging {
 
         /*!
 		 * \brief Alternative for the operator <<
-		 * \details Example: writeSp(1,2,3) -> "123"
+		 * \details Example: write(1,2,3) -> "123"
 		 * \see \link LogMessage::writeSp \endlink
 		 * \param [in] args
 		 */

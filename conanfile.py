@@ -44,7 +44,7 @@ class LibConan(ConanFile):
     name = 'stsff-logging'
     license = 'BSD 3-Clause'
     description = "Cpp library for logging"
-    author = 'FlightFactor & StepToSky <info@flightfactor.aero>'
+    author = 'StepToSky & FlightFactor <info@steptosky.com>'
 
     settings = "os", "compiler", "build_type", "arch"
 

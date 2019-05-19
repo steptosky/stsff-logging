@@ -1,5 +1,5 @@
 /*
-**  Copyright (C) 2018, StepToSky and FlightFactor
+**  Copyright(C) 2019, StepToSky and FlightFactor
 **  All rights reserved
 **
 **  Redistribution and use in source and binary forms, with or without

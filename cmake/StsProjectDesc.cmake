@@ -74,9 +74,9 @@ set(ProjectOrganizationWebLink "www.flightfactor.aero")
 
 set(ProjectName "stsff-logging")
 set(ProjectFullName "stsff-cpp-logging")
-set(ProjectDescription "Cpp library for logging")
+set(ProjectDescription "Library for logging")
 set(ProjectWebLink "")
-set(ProjectSourcesWebLink "")
+set(ProjectSourcesWebLink "https://github.com/steptosky/stsff-logging")
 
 set(ProjectGroupId "stsff")
 set(ProjectId ${ProjectName})
@@ -93,7 +93,7 @@ set(ProjectVersion "${ProjectVersionMajor}.${ProjectVersionMinor}.${ProjectVersi
 
 # You can use any string you wish, 
 # but i will be changed to snapshot if it is enabled. 
-set(ProjectReleaseType "beta")
+set(ProjectReleaseType "")
 if (ProjectVersionSnapshot)
     set(ProjectReleaseType "snapshot")
 endif()
@@ -101,8 +101,8 @@ endif()
 #----------------------------------------------------------------------------------#
 # License
 
-set(ProjectAuthor "FlightFactor & StepToSky")
-set(ProjectCopyRight "Copyright ${ProjectAuthor} 2018-${_curr_y_}")
+set(ProjectAuthor "StepToSky & FlightFactor")
+set(ProjectCopyRight "Copyright (C) ${ProjectAuthor} 2019-${_curr_y_}")
 set(ProjectLicenseType "BSD 3-Clause")
 
 #----------------------------------------------------------------------------------#

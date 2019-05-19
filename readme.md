@@ -6,7 +6,22 @@
   For more information read the [license](license.txt) file.
 - The library uses [SemVer](http://semver.org/).
 - The library requires C++ 11 or higher.
-- Conan reference ```stsff-logging/X.Y.Z@stsff/stable```
+- Conan reference ```stsff-logging/X.Y.Z@stsff/stable```  
+  Available in [steptosky bintray](https://bintray.com/steptosky/conan-open-source) remote without prebuilt packages.
+
+---
+``` cpp
+using namespace stsff::logging;
+
+BaseLogger logger("my-logger");
+LMessage(logger) << "my message";
+
+LVar(logVar, logger).message() << " declare variable logVar and set the level";
+logVar << "can use the logVar now";
+
+// see documentation for more information
+```
+---
 
 #### warning 
 - As the library hasn't got the major version yet
@@ -14,10 +29,10 @@
 
 
 #### dependencies
-- [Cmake 3.10.3+](https://cmake.org) - building tool.
-- [Conan 1.8+](https://www.conan.io) - package manager.
+- [Cmake](https://cmake.org) - building tool.
+- [Conan](https://www.conan.io) - package manager.
 - [Conan Package Tools](https://github.com/conan-io/conan-package-tools) - if you want to build the project with those tools.
-- [Python 3](https://www.python.org) - is needed for the Conan.
+- [Python](https://www.python.org) - is needed for the Conan.
 - [Doxygen](http://www.stack.nl/~dimitri/doxygen) - if you want to generate the documentation.
 - [Gtest and Gmock 1.8](https://github.com/google/googletest) - testing (is used via the conan) . 
 
@@ -60,7 +75,7 @@ Windows (.bat) For Visual Studio 2017.
 @echo off
 :: Fix problems with some symbols.
 REM change CHCP to UTF-8
-CHCP 1252
+CHCP 65001
 CLS
 ::==========================================================
 :: Sometimes conan asks you about to login to private repositories
@@ -70,14 +85,14 @@ CLS
 if exist set-conan-user.bat call set-conan-user.bat
 ::==========================================================
 :: Creating building DIR and use it as working one.
-set dir="msvc-2017"
+set dir="msvc-2019"
 if not exist %dir% mkdir %dir%
 cd %dir%
 ::==========================================================
 :: Generating Visual Studio project.
 :: If you want to select specific tool-set use -T.
 :: Example VS 2015: call cmake -G "Visual Studio 15 Win64" -T v140 ...
-call cmake -G "Visual Studio 15 Win64" ../ ^
+call cmake -G "Visual Studio 16" ../ ^
     -DBUILD_SHARED_LIBS=OFF ^
     -DCMAKE_INSTALL_PREFIX=../output ^
     -DBUILD_TESTING=ON
@@ -144,7 +159,6 @@ call conan create . stsff/develop ^
      -o stsff-logging:shared=False ^
      -e CONAN_TESTING_REPORT_DIR="report/conan-test" ^
      -e CONAN_BUILD_TESTING=1 ^
-     -e CTEST_OUTPUT_ON_FAILURE=1 ^
     --build=stsff-logging
 
 pause
@@ -162,7 +176,6 @@ conan create . stsff/develop \
      -o stsff-logging:shared=False \
      -e CONAN_TESTING_REPORT_DIR="report/conan-test" \
      -e CONAN_BUILD_TESTING=1 \
-     -e CTEST_OUTPUT_ON_FAILURE=1 \
     --build=stsff-logging
 ```
 ---
@@ -208,7 +221,6 @@ set CONAN_BUILD_TESTING=1
 set CONAN_BUILD_POLICY=outdated
 set CONAN_VISUAL_VERSIONS=15
 set CONAN_ARCHS=x86_64
-set CTEST_OUTPUT_ON_FAILURE=1
 ::==========================================================
 
 call python build.py
@@ -230,21 +242,19 @@ CONAN_BUILD_TESTING=1
 CONAN_BUILD_POLICY=outdated
 CONAN_APPLE_CLANG_VERSIONS=9.1
 CONAN_ARCHS=x86_64
-CTEST_OUTPUT_ON_FAILURE=1
 
 python build.py
 
 # uncomment next line if you want to remove all packages from all versions from specified channel
-# conan remove stsff-logging/*@stsff/testing -f
+# conan remove stsff-logging/*stsff/testing -f
 ```
 ---
 
 ## Memo for the library developers
 - [release-checklist](release-checklist.md) see this file when you are making the release.
-- [conan-package-tools](https://github.com/conan-io/conan-package-tools).
 - [lasote docker hub](https://hub.docker.com/u/lasote/).
 
 
 ## Copyright
-Copyright (c) 2019, StepToSky and FlightFactor teams. All rights reserved.  
+Copyright © 2019, StepToSky and FlightFactor teams. All rights reserved.  
 [www.steptosky.com](http://www.steptosky.com/) & [www.flightfactor.aero](http://www.flightfactor.aero)

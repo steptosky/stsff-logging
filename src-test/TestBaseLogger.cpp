@@ -62,6 +62,9 @@ TEST(BaseLogger, variadic) {
     LogMessage(logger).setCategory("msg-cat").writeSp("message1", "message2", "message3").push();
     result = stream.str();
     EXPECT_STREQ("log-category,msg-cat,message1 message2 message3,,,0\n", result.c_str());
+
+    LVar(logVar, logger).message() << " declare variable logVar and set level";
+    logVar << "can use the log var now";
 }
 
 /**************************************************************************************************/

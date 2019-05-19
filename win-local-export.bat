@@ -6,7 +6,6 @@
 ::     -s arch=x86_64 ^
 ::     -o stsff-logging:shared=False ^
 ::     -e CONAN_BUILD_TESTING=1 ^
-::     -e CTEST_OUTPUT_ON_FAILURE=1
 ::
 ::call conan create . stsff/develop ^
 ::     -s compiler="Visual Studio" ^
@@ -16,7 +15,6 @@
 ::     -s arch=x86_64 ^
 ::     -o stsff-logging:shared=False ^
 ::     -e CONAN_BUILD_TESTING=1 ^
-::     -e CTEST_OUTPUT_ON_FAILURE=1
 
 call conan export . stsff/develop
 

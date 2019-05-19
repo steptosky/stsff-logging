@@ -1,5 +1,6 @@
 ## Release checklist
 - Check whether the `doxygen` doesn't have unexpected warnings and errors while generating the documentation.
+- Write the correct version into [win-bintray-export.bat](win-bintray-export.bat)
 
 #### [StsProjectDesc.cmake](cmake/StsProjectDesc.cmake)
 - Set the correct version in the file and check other information there.

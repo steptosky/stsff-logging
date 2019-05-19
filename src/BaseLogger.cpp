@@ -110,7 +110,7 @@ namespace logging {
     //////////////////////////////////////////* Functions */////////////////////////////////////////////
     /**************************************************************************************************/
 
-    void BaseLogger::setHandler(const std::size_t level, const LevelHandler & handler) {
+    void BaseLogger::setHandler(const std::size_t level, const LevelHandler & handler) noexcept {
         const auto it = mLevels.find(level);
         if (it != mLevels.end()) {
             it->second = handler;
@@ -244,7 +244,7 @@ namespace logging {
         stream << std::endl;
     }
 
-    std::string BaseLogger::timeStamp(const std::string & format) {
+    std::string BaseLogger::timeStamp(const std::string & format) noexcept {
         std::string out;
         if (format.empty()) {
             return out;

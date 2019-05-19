@@ -176,7 +176,7 @@ namespace logging {
          * \param [in] level
          * \param [in] handler
          */
-        LoggingExp void setHandler(std::size_t level, const LevelHandler & handler);
+        LoggingExp void setHandler(std::size_t level, const LevelHandler & handler) noexcept;
 
         /*!
          * \details Get the levels handler map.
@@ -248,7 +248,7 @@ namespace logging {
          * \param [in] format see description of C++ std::strftime function.
          * \warning Maximum string size is 99.
          */
-        LoggingExp static std::string timeStamp(const std::string & format = "%Y-%m-%d %T");
+        LoggingExp static std::string timeStamp(const std::string & format = "%Y-%m-%d %T") noexcept;
 
         /// @}
         //---------------------------------------------------------------
@@ -364,7 +364,7 @@ namespace logging {
             return *this;
         }
 
-        LogMessage & operator<<(const CmdPush &) noexcept {
+        LogMessage & operator<<(const CmdPush &) {
             push();
             return *this;
         }
@@ -385,7 +385,7 @@ namespace logging {
          * \param [in] level
          */
         template<typename T>
-        LogMessage & level(const T level) noexcept {
+        LogMessage & level(const T level) {
             static_assert(std::numeric_limits<T>::is_integer,
                 "This method can be used for the integers types only. See also BaseLogger::eLevel.");
             mLogMsg.mLevel = BaseLogger::eLevel(level);
@@ -405,22 +405,22 @@ namespace logging {
         //---------------------------------------------------------------
         /// @{
 
-        LogMessage & setCategory(const StringView category) noexcept {
+        LogMessage & setCategory(const StringView category) {
             mLogMsg.mCategory = category;
             return *this;
         }
 
-        LogMessage & setFunction(const StringView fn) noexcept {
+        LogMessage & setFunction(const StringView fn) {
             mLogMsg.mFunction = fn;
             return *this;
         }
 
-        LogMessage & setFile(const StringView file) noexcept {
+        LogMessage & setFile(const StringView file) {
             mLogMsg.mFile = file;
             return *this;
         }
 
-        LogMessage & setFileLine(const int line) noexcept {
+        LogMessage & setFileLine(const int line) {
             mLogMsg.mLine = line;
             return *this;
         }
@@ -441,7 +441,7 @@ namespace logging {
         /*!
          * \brief Prevents printing the message.
          */
-        void abort() noexcept {
+        void abort() {
             mPushed = true;
         }
 

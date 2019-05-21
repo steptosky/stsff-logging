@@ -36,7 +36,9 @@
 #include <functional>
 #include <unordered_map>
 #include <limits>
+#include <exception>
 #include "utils/SourceName.h"
+#include "utils/Colorize.h"
 
 /**************************************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -108,7 +110,7 @@ namespace logging {
          */
         struct LogMsg {
             LogMsg(const std::size_t lvl, const StringView category, const StringView msg,
-                   const StringView fn, const StringView fl, const int ln)
+                   const StringView fn, const StringView fl, const int ln) noexcept
                 : mCategory(category),
                   mMsg(msg),
                   mFunction(fn),
@@ -291,9 +293,19 @@ namespace logging {
      * \code
      * // define somewhere
      * template<>
-     * inline stsff::LogMessage & stsff::LogMessage::operator<<<MyType>(const MyType & msg) {
-     *     *this << msg; // change it for your type
-     *     return *this;
+     * inline stsff::LogMessage & stsff::LogMessage::operator<<<MyType>(const MyType & msg) noexcept {
+     *      try {
+     *          *this << msg; // change it for your type
+     *      }
+     *      catch (const std::exception & e) {
+     *          std::cerr << colorize::red << e.what() << " [" << __STS_FUNC_NAME__ << "]"
+     *                  << colorize::reset << std::endl;
+     *      }
+     *      catch (...) {
+     *          std::cerr << colorize::red << "unknown exception [" << __STS_FUNC_NAME__ << "]"
+     *                  << colorize::reset << std::endl;
+     *      }
+     *      return *this;
      * }
      * \endcode
      * 
@@ -371,7 +383,17 @@ namespace logging {
 
         template<class T>
         LogMessage & operator<<(const T & msg) noexcept {
-            mStream << msg;
+            try {
+                mStream << msg;
+            }
+            catch (const std::exception & e) {
+                std::cerr << colorize::red << e.what() << " [" << __STS_FUNC_NAME__ << "]"
+                        << colorize::reset << std::endl;
+            }
+            catch (...) {
+                std::cerr << colorize::red << "unknown exception [" << __STS_FUNC_NAME__ << "]"
+                        << colorize::reset << std::endl;
+            }
             return *this;
         }
 
@@ -389,7 +411,7 @@ namespace logging {
         /*!
          * \brief Sets custom level.
          * \details This sets your own custom level
-         * \tparam T integer, std::size_t is proffered.
+         * \tparam T integer, std::size_t is preferred.
          * \param [in] level
          */
         template<typename T>

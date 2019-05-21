@@ -380,7 +380,7 @@ namespace logging {
             return *this;
         }
 
-        LogMessage & write(const char * data, std::size_t size) noexcept;
+        LoggingExp LogMessage & write(const char * data, std::size_t size) noexcept;
 
         /// @}
         //---------------------------------------------------------------

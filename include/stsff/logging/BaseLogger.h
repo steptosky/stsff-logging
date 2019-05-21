@@ -411,7 +411,7 @@ namespace logging {
         /*!
          * \brief Sets custom level.
          * \details This sets your own custom level
-         * \tparam T integer, std::size_t is proffered.
+         * \tparam T integer, std::size_t is preferred.
          * \param [in] level
          */
         template<typename T>

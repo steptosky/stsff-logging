@@ -67,8 +67,8 @@ namespace logging {
             SI_EXABYTE = 1000 * SI_PETABYTE,
         };
 
-        LoggingExp static std::string bin(Size size);
-        LoggingExp static std::string si(Size size);
+        LoggingExp static std::string bin(Size size) noexcept;
+        LoggingExp static std::string si(Size size) noexcept;
 
     };
 

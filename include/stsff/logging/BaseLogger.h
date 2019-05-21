@@ -152,9 +152,9 @@ namespace logging {
         //---------------------------------------------------------------
         /// @{
 
-        LoggingExp explicit BaseLogger(StringView name = StringView());
+        LoggingExp explicit BaseLogger(StringView name = StringView()) noexcept;
 
-        explicit BaseLogger(const StringView name, LevelHandlers levelsConf)
+        explicit BaseLogger(const StringView name, LevelHandlers levelsConf) noexcept
             : mLevels(std::move(levelsConf)),
               mCategory(name.data(), name.size()) {}
 
@@ -191,12 +191,12 @@ namespace logging {
         /*!
          * \return Levels handler map.
          */
-        const LevelHandlers & handlers() const { return mLevels; }
+        const LevelHandlers & handlers() const noexcept { return mLevels; }
 
         /*!
          * \return Levels handler map.
          */
-        LevelHandlers & handlers() { return mLevels; }
+        LevelHandlers & handlers() noexcept { return mLevels; }
 
         /// @}
         //---------------------------------------------------------------
@@ -207,23 +207,23 @@ namespace logging {
          *          Default is \link BaseLogger::LvlDebug \endlink
          * \param [in] level
          */
-        void setLevel(const std::size_t level) { mLevel = level; }
+        void setLevel(const std::size_t level) noexcept { mLevel = level; }
 
         /*!
          * \return Current level for printing.
          */
-        std::size_t level() const { return mLevel; }
+        std::size_t level() const noexcept { return mLevel; }
 
         /*!
          * \details Set logger name.
          * \param [in] name
          */
-        void setName(const std::string & name) { mCategory = name; }
+        void setName(const std::string & name) noexcept { mCategory = name; }
 
         /*!
          * \return Logger name.
          */
-        const std::string & name() const { return mCategory; }
+        const std::string & name() const noexcept { return mCategory; }
 
         /// @}
         //---------------------------------------------------------------
@@ -309,16 +309,16 @@ namespace logging {
         //---------------------------------------------------------------
         /// @{
 
-        explicit LogMessage(const BaseLogger & logger)
+        explicit LogMessage(const BaseLogger & logger) noexcept
             : LogMessage(&logger, StringView(), StringView(), 0) {}
 
-        explicit LogMessage(const BaseLogger * logger)
+        explicit LogMessage(const BaseLogger * logger) noexcept
             : LogMessage(logger, StringView(), StringView(), 0) {}
 
-        LogMessage(const BaseLogger & logger, const StringView function, const StringView file, const int line)
+        LogMessage(const BaseLogger & logger, const StringView function, const StringView file, const int line) noexcept
             : LogMessage(&logger, function, file, line) {}
 
-        LogMessage(const BaseLogger * logger, const StringView function, const StringView file, const int line)
+        LogMessage(const BaseLogger * logger, const StringView function, const StringView file, const int line) noexcept
             : mLogMsg(BaseLogger::LvlMsg, StringView(), StringView(), function, file, line),
               mLog(logger) {
             assert(mLog);
@@ -344,7 +344,7 @@ namespace logging {
 		 * \param [in] args
 		 */
         template<typename... Args>
-        LogMessage & write(const Args & ... args) {
+        LogMessage & write(const Args & ... args) noexcept {
             int unpack[]{0, ((*this << args), 0)...};
             return *this;
         }
@@ -358,7 +358,7 @@ namespace logging {
          * \param [in] other
          */
         template<typename T, typename... Args>
-        LogMessage & writeSp(const T & first, const Args & ... other) {
+        LogMessage & writeSp(const T & first, const Args & ... other) noexcept {
             static_assert(sizeof...(other), "This function takes 2 or more arguments!");
             *this << first;
             int unpack[]{0, ((*this << " " << other), 0)...};
@@ -370,20 +370,17 @@ namespace logging {
         /// @{
 
         template<class T>
-        LogMessage & operator<<(const T & msg) {
+        LogMessage & operator<<(const T & msg) noexcept {
             mStream << msg;
             return *this;
         }
 
-        LogMessage & operator<<(const CmdPush &) {
+        LogMessage & operator<<(const CmdPush &) noexcept {
             push();
             return *this;
         }
 
-        LogMessage & write(const char * data, const std::size_t size) {
-            mStream.write(data, size);
-            return *this;
-        }
+        LoggingExp LogMessage & write(const char * data, std::size_t size) noexcept;
 
         /// @}
         //---------------------------------------------------------------
@@ -396,7 +393,7 @@ namespace logging {
          * \param [in] level
          */
         template<typename T>
-        LogMessage & level(const T level) {
+        LogMessage & level(const T level) noexcept {
             static_assert(std::numeric_limits<T>::is_integer,
                 "This method can be used for the integers types only. See also BaseLogger::eLevel.");
             mLogMsg.mLevel = BaseLogger::eLevel(level);
@@ -416,22 +413,22 @@ namespace logging {
         //---------------------------------------------------------------
         /// @{
 
-        LogMessage & setCategory(const StringView category) {
+        LogMessage & setCategory(const StringView category) noexcept {
             mLogMsg.mCategory = category;
             return *this;
         }
 
-        LogMessage & setFunction(const StringView fn) {
+        LogMessage & setFunction(const StringView fn) noexcept {
             mLogMsg.mFunction = fn;
             return *this;
         }
 
-        LogMessage & setFile(const StringView file) {
+        LogMessage & setFile(const StringView file) noexcept {
             mLogMsg.mFile = file;
             return *this;
         }
 
-        LogMessage & setFileLine(const int line) {
+        LogMessage & setFileLine(const int line) noexcept {
             mLogMsg.mLine = line;
             return *this;
         }
@@ -452,14 +449,14 @@ namespace logging {
         /*!
          * \brief Prevents printing the message.
          */
-        void abort() {
+        void abort() noexcept {
             mPushed = true;
         }
 
         /*!
          * \return Log message string.
          */
-        std::string string() const {
+        std::string string() const noexcept {
             return mStream.str();
         }
 

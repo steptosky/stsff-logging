@@ -48,68 +48,66 @@ namespace logging {
         /**************************************************************************************************/
         // common
 
-        LoggingExp std::ostream & grey(std::ostream & stream);
+        LoggingExp std::ostream & grey(std::ostream & stream) noexcept;
 
-        LoggingExp std::ostream & red(std::ostream & stream);
-        LoggingExp std::ostream & green(std::ostream & stream);
-        LoggingExp std::ostream & blue(std::ostream & stream);
+        LoggingExp std::ostream & red(std::ostream & stream) noexcept;
+        LoggingExp std::ostream & green(std::ostream & stream) noexcept;
+        LoggingExp std::ostream & blue(std::ostream & stream) noexcept;
 
-        LoggingExp std::ostream & yellow(std::ostream & stream);
-        LoggingExp std::ostream & magenta(std::ostream & stream);
-        LoggingExp std::ostream & cyan(std::ostream & stream);
+        LoggingExp std::ostream & yellow(std::ostream & stream) noexcept;
+        LoggingExp std::ostream & magenta(std::ostream & stream) noexcept;
+        LoggingExp std::ostream & cyan(std::ostream & stream) noexcept;
 
-        LoggingExp std::ostream & white(std::ostream & stream);
+        LoggingExp std::ostream & white(std::ostream & stream) noexcept;
 
         //-------------------------------------------------------------------------
 
-        LoggingExp std::ostream & onGrey(std::ostream & stream);
+        LoggingExp std::ostream & onGrey(std::ostream & stream) noexcept;
 
-        LoggingExp std::ostream & onRed(std::ostream & stream);
-        LoggingExp std::ostream & onGreen(std::ostream & stream);
-        LoggingExp std::ostream & onBlue(std::ostream & stream);
+        LoggingExp std::ostream & onRed(std::ostream & stream) noexcept;
+        LoggingExp std::ostream & onGreen(std::ostream & stream) noexcept;
+        LoggingExp std::ostream & onBlue(std::ostream & stream) noexcept;
 
-        LoggingExp std::ostream & onYellow(std::ostream & stream);
-        LoggingExp std::ostream & onMagenta(std::ostream & stream);
-        LoggingExp std::ostream & onCyan(std::ostream & stream);
+        LoggingExp std::ostream & onYellow(std::ostream & stream) noexcept;
+        LoggingExp std::ostream & onMagenta(std::ostream & stream) noexcept;
+        LoggingExp std::ostream & onCyan(std::ostream & stream) noexcept;
 
-        LoggingExp std::ostream & onWhite(std::ostream & stream);
+        LoggingExp std::ostream & onWhite(std::ostream & stream) noexcept;
 
         /**************************************************************************************************/
         ////////////////////////////////////////////////////////////////////////////////////////////////////
         /**************************************************************************************************/
         // windows only in Unix it will be standard as above.
 
-        LoggingExp std::ostream & darkGrey(std::ostream & stream);
+        LoggingExp std::ostream & darkGrey(std::ostream & stream) noexcept;
 
-        LoggingExp std::ostream & darkRed(std::ostream & stream);
-        LoggingExp std::ostream & darkGreen(std::ostream & stream);
-        LoggingExp std::ostream & darkBlue(std::ostream & stream);
+        LoggingExp std::ostream & darkRed(std::ostream & stream) noexcept;
+        LoggingExp std::ostream & darkGreen(std::ostream & stream) noexcept;
+        LoggingExp std::ostream & darkBlue(std::ostream & stream) noexcept;
 
-        LoggingExp std::ostream & darkYellow(std::ostream & stream);
-        LoggingExp std::ostream & darkMagenta(std::ostream & stream);
-        LoggingExp std::ostream & darkCyan(std::ostream & stream);
-
-        LoggingExp std::ostream & darkWhite(std::ostream & stream);
+        LoggingExp std::ostream & darkYellow(std::ostream & stream) noexcept;
+        LoggingExp std::ostream & darkMagenta(std::ostream & stream) noexcept;
+        LoggingExp std::ostream & darkCyan(std::ostream & stream) noexcept;
 
         //-------------------------------------------------------------------------
 
-        LoggingExp std::ostream & onDarkGrey(std::ostream & stream);
+        LoggingExp std::ostream & onDarkGrey(std::ostream & stream) noexcept;
 
-        LoggingExp std::ostream & onDarkRed(std::ostream & stream);
-        LoggingExp std::ostream & onDarkGreen(std::ostream & stream);
-        LoggingExp std::ostream & onDarkBlue(std::ostream & stream);
+        LoggingExp std::ostream & onDarkRed(std::ostream & stream) noexcept;
+        LoggingExp std::ostream & onDarkGreen(std::ostream & stream) noexcept;
+        LoggingExp std::ostream & onDarkBlue(std::ostream & stream) noexcept;
 
-        LoggingExp std::ostream & onDarkYellow(std::ostream & stream);
-        LoggingExp std::ostream & onDarkMagenta(std::ostream & stream);
-        LoggingExp std::ostream & onDarkCyan(std::ostream & stream);
+        LoggingExp std::ostream & onDarkYellow(std::ostream & stream) noexcept;
+        LoggingExp std::ostream & onDarkMagenta(std::ostream & stream) noexcept;
+        LoggingExp std::ostream & onDarkCyan(std::ostream & stream) noexcept;
 
-        LoggingExp std::ostream & onDarkWhite(std::ostream & stream);
+        LoggingExp std::ostream & onDarkWhite(std::ostream & stream) noexcept;
 
         /**************************************************************************************************/
         ////////////////////////////////////////////////////////////////////////////////////////////////////
         /**************************************************************************************************/
 
-        LoggingExp std::ostream & reset(std::ostream & stream);
+        LoggingExp std::ostream & reset(std::ostream & stream) noexcept;
 
         /**************************************************************************************************/
         ////////////////////////////////////////////////////////////////////////////////////////////////////

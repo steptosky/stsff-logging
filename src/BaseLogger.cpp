@@ -43,7 +43,7 @@ namespace logging {
     /**************************************************************************************************/
 
     ///! [setup handlers]
-    BaseLogger::BaseLogger(const StringView name)
+    BaseLogger::BaseLogger(const StringView name) noexcept
         : BaseLogger(name, {
                 {
                     LvlDebug, [](const BaseLogger & l, const LogMsg & m) {
@@ -283,6 +283,23 @@ namespace logging {
             out.append(buffer, byteNum);
         }
         return out;
+    }
+
+    /**************************************************************************************************/
+    //////////////////////////////////////////* Functions */////////////////////////////////////////////
+    /**************************************************************************************************/
+
+    LogMessage & LogMessage::write(const char * data, const std::size_t size) noexcept {
+        try {
+            mStream.write(data, size);
+        }
+        catch (const std::exception & e) {
+            std::cerr << colorize::red << e.what() << " [" << __STS_FUNC_NAME__ << "]" << colorize::reset << std::endl;
+        }
+        catch (...) {
+            std::cerr << colorize::red << "unknown exception [" << __STS_FUNC_NAME__ << "]" << colorize::reset << std::endl;
+        }
+        return *this;
     }
 
     /**************************************************************************************************/

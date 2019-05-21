@@ -89,8 +89,6 @@ namespace logging {
         LoggingExp std::ostream & darkMagenta(std::ostream & stream) noexcept;
         LoggingExp std::ostream & darkCyan(std::ostream & stream) noexcept;
 
-        LoggingExp std::ostream & darkWhite(std::ostream & stream) noexcept;
-
         //-------------------------------------------------------------------------
 
         LoggingExp std::ostream & onDarkGrey(std::ostream & stream) noexcept;

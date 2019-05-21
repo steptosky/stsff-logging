@@ -39,12 +39,12 @@ namespace logging {
     //////////////////////////////////////////* Functions */////////////////////////////////////////////
     /**************************************************************************************************/
 
-    inline std::string byteFormat(const char * formatting, const float value, const char * unit) {
+    inline std::string byteFormat(const char * formatting, const float value, const char * unit) noexcept {
         char buff[10] = {0};
 #ifdef _MSC_VER
         return (sprintf_s(buff, 10, formatting, value, unit) < 0) ? std::string() : std::string(buff);
 #else
-            return (sprintf(buff, formatting, value, unit) < 0) ? std::string() : std::string(buff);
+        return (sprintf(buff, formatting, value, unit) < 0) ? std::string() : std::string(buff);
 #endif
     }
 
@@ -52,7 +52,7 @@ namespace logging {
     //////////////////////////////////////////* Functions */////////////////////////////////////////////
     /**************************************************************************************************/
 
-    std::string ByteFormat::bin(const Size size) {
+    std::string ByteFormat::bin(const Size size) noexcept {
         const char * unit = nullptr;
         auto value = float(size);
 
@@ -90,7 +90,7 @@ namespace logging {
         return size < KILOBYTE ? byteFormat("%.0f %s", value, unit) : byteFormat("%.1f %s", value, unit);
     }
 
-    std::string ByteFormat::si(const Size size) {
+    std::string ByteFormat::si(const Size size) noexcept {
         const char * unit = nullptr;
         auto value = float(size);
 

@@ -83,7 +83,7 @@ namespace logging {
         // colorize / disabled I/O manipulators for details.
         static const auto gColorizeIndex = std::ios_base::xalloc();
 
-        inline FILE * getStdStream(const std::ostream & stream) {
+        inline FILE * getStdStream(const std::ostream & stream) noexcept {
             if (&stream == &std::cout) {
                 return stdout;
             }
@@ -98,7 +98,7 @@ namespace logging {
 
         //! Test whether a given `std::ostream` object refers to
         //! a terminal.
-        inline bool isAtty(const std::ostream & stream) {
+        inline bool isAtty(const std::ostream & stream) noexcept {
             auto * stdStream = getStdStream(stream);
 
             // Unfortunately, fileno() ends with segmentation fault
@@ -116,7 +116,7 @@ namespace logging {
         // Say whether a given stream should be colorized or not. It's always
         // true for ATTY streams and may be true for streams marked with
         // colorize flag.
-        inline bool isColorized(std::ostream & stream) {
+        inline bool isColorized(std::ostream & stream) noexcept {
             return isAtty(stream) || stream.iword(gColorizeIndex) != 0;
         }
 
@@ -127,7 +127,7 @@ namespace logging {
 #if defined(COLORIZE_OS_WINDOWS)
         //! Change Windows Terminal colors attribute. If some
         //! parameter is `-1` then attribute won't changed.
-        inline void winChangeAttributes(std::ostream & stream, const int foreground, const int background = -1) {
+        inline void winChangeAttributes(std::ostream & stream, const int foreground, const int background = -1) noexcept {
             // yeah, i know.. it's ugly, it's windows.
             static WORD defaultAttributes = 0;
 
@@ -189,7 +189,7 @@ namespace logging {
         //////////////////////////////////////////* Functions */////////////////////////////////////////////
         /**************************************************************************************************/
 
-        std::ostream & grey(std::ostream & stream) {
+        std::ostream & grey(std::ostream & stream) noexcept {
             if (isColorized(stream)) {
                 COLORIZE_ON_MACOS(stream << "\033[30m");
                 COLORIZE_ON_LINUX(stream << "\033[30m");
@@ -198,7 +198,7 @@ namespace logging {
             return stream;
         }
 
-        std::ostream & darkGrey(std::ostream & stream) {
+        std::ostream & darkGrey(std::ostream & stream) noexcept {
             if (isColorized(stream)) {
                 COLORIZE_ON_MACOS(stream << "\033[30m");
                 COLORIZE_ON_LINUX(stream << "\033[30m");
@@ -209,7 +209,7 @@ namespace logging {
 
         //-------------------------------------------------------------------------
 
-        std::ostream & red(std::ostream & stream) {
+        std::ostream & red(std::ostream & stream) noexcept {
             if (isColorized(stream)) {
                 COLORIZE_ON_MACOS(stream << "\033[31m");
                 COLORIZE_ON_LINUX(stream << "\033[31m");
@@ -218,7 +218,7 @@ namespace logging {
             return stream;
         }
 
-        std::ostream & darkRed(std::ostream & stream) {
+        std::ostream & darkRed(std::ostream & stream) noexcept {
             if (isColorized(stream)) {
                 COLORIZE_ON_MACOS(stream << "\033[31m");
                 COLORIZE_ON_LINUX(stream << "\033[31m");
@@ -227,7 +227,7 @@ namespace logging {
             return stream;
         }
 
-        std::ostream & green(std::ostream & stream) {
+        std::ostream & green(std::ostream & stream) noexcept {
             if (isColorized(stream)) {
                 COLORIZE_ON_MACOS(stream <<"\033[32m");
                 COLORIZE_ON_LINUX(stream <<"\033[32m");
@@ -236,7 +236,7 @@ namespace logging {
             return stream;
         }
 
-        std::ostream & darkGreen(std::ostream & stream) {
+        std::ostream & darkGreen(std::ostream & stream) noexcept {
             if (isColorized(stream)) {
                 COLORIZE_ON_MACOS(stream << "\033[32m");
                 COLORIZE_ON_LINUX(stream << "\033[32m");
@@ -245,7 +245,7 @@ namespace logging {
             return stream;
         }
 
-        std::ostream & blue(std::ostream & stream) {
+        std::ostream & blue(std::ostream & stream) noexcept {
             if (isColorized(stream)) {
                 COLORIZE_ON_MACOS(stream << "\033[34m");
                 COLORIZE_ON_LINUX(stream << "\033[34m");
@@ -254,7 +254,7 @@ namespace logging {
             return stream;
         }
 
-        std::ostream & darkBlue(std::ostream & stream) {
+        std::ostream & darkBlue(std::ostream & stream) noexcept {
             if (isColorized(stream)) {
                 COLORIZE_ON_MACOS(stream << "\033[34m");
                 COLORIZE_ON_LINUX(stream << "\033[34m");
@@ -265,7 +265,7 @@ namespace logging {
 
         //-------------------------------------------------------------------------
 
-        std::ostream & yellow(std::ostream & stream) {
+        std::ostream & yellow(std::ostream & stream) noexcept {
             if (isColorized(stream)) {
                 COLORIZE_ON_MACOS(stream <<"\033[33m");
                 COLORIZE_ON_LINUX(stream <<"\033[33m");
@@ -274,7 +274,7 @@ namespace logging {
             return stream;
         }
 
-        std::ostream & darkYellow(std::ostream & stream) {
+        std::ostream & darkYellow(std::ostream & stream) noexcept {
             if (isColorized(stream)) {
                 COLORIZE_ON_MACOS(stream << "\033[33m");
                 COLORIZE_ON_LINUX(stream << "\033[33m");
@@ -283,7 +283,7 @@ namespace logging {
             return stream;
         }
 
-        std::ostream & magenta(std::ostream & stream) {
+        std::ostream & magenta(std::ostream & stream) noexcept {
             if (isColorized(stream)) {
                 COLORIZE_ON_MACOS(stream << "\033[35m");
                 COLORIZE_ON_LINUX(stream << "\033[35m");
@@ -292,7 +292,7 @@ namespace logging {
             return stream;
         }
 
-        std::ostream & darkMagenta(std::ostream & stream) {
+        std::ostream & darkMagenta(std::ostream & stream) noexcept {
             if (isColorized(stream)) {
                 COLORIZE_ON_MACOS(stream << "\033[35m");
                 COLORIZE_ON_LINUX(stream << "\033[35m");
@@ -301,7 +301,7 @@ namespace logging {
             return stream;
         }
 
-        std::ostream & cyan(std::ostream & stream) {
+        std::ostream & cyan(std::ostream & stream) noexcept {
             if (isColorized(stream)) {
                 COLORIZE_ON_MACOS(stream << "\033[36m");
                 COLORIZE_ON_LINUX(stream << "\033[36m");
@@ -310,7 +310,7 @@ namespace logging {
             return stream;
         }
 
-        std::ostream & darkCyan(std::ostream & stream) {
+        std::ostream & darkCyan(std::ostream & stream) noexcept {
             if (isColorized(stream)) {
                 COLORIZE_ON_MACOS(stream << "\033[36m");
                 COLORIZE_ON_LINUX(stream << "\033[36m");
@@ -321,7 +321,7 @@ namespace logging {
 
         //-------------------------------------------------------------------------
 
-        std::ostream & white(std::ostream & stream) {
+        std::ostream & white(std::ostream & stream) noexcept {
             if (isColorized(stream)) {
                 COLORIZE_ON_MACOS(stream << "\033[37m");
                 COLORIZE_ON_LINUX(stream << "\033[37m");
@@ -334,7 +334,7 @@ namespace logging {
         //////////////////////////////////////////* Functions */////////////////////////////////////////////
         /**************************************************************************************************/
 
-        std::ostream & onGrey(std::ostream & stream) {
+        std::ostream & onGrey(std::ostream & stream) noexcept {
             if (isColorized(stream)) {
                 COLORIZE_ON_MACOS(stream << "\033[40m");
                 COLORIZE_ON_LINUX(stream << "\033[40m");
@@ -343,7 +343,7 @@ namespace logging {
             return stream;
         }
 
-        std::ostream & onDarkGrey(std::ostream & stream) {
+        std::ostream & onDarkGrey(std::ostream & stream) noexcept {
             if (isColorized(stream)) {
                 COLORIZE_ON_MACOS(stream << "\033[40m");
                 COLORIZE_ON_LINUX(stream << "\033[40m");
@@ -354,7 +354,7 @@ namespace logging {
 
         //-------------------------------------------------------------------------
 
-        std::ostream & onRed(std::ostream & stream) {
+        std::ostream & onRed(std::ostream & stream) noexcept {
             if (isColorized(stream)) {
                 COLORIZE_ON_MACOS(stream << "\033[41m");
                 COLORIZE_ON_LINUX(stream << "\033[41m");
@@ -363,7 +363,7 @@ namespace logging {
             return stream;
         }
 
-        std::ostream & onDarkRed(std::ostream & stream) {
+        std::ostream & onDarkRed(std::ostream & stream) noexcept {
             if (isColorized(stream)) {
                 COLORIZE_ON_MACOS(stream << "\033[41m");
                 COLORIZE_ON_LINUX(stream << "\033[41m");
@@ -372,7 +372,7 @@ namespace logging {
             return stream;
         }
 
-        std::ostream & onGreen(std::ostream & stream) {
+        std::ostream & onGreen(std::ostream & stream) noexcept {
             if (isColorized(stream)) {
                 COLORIZE_ON_MACOS(stream << "\033[42m");
                 COLORIZE_ON_LINUX(stream << "\033[42m");
@@ -381,7 +381,7 @@ namespace logging {
             return stream;
         }
 
-        std::ostream & onDarkGreen(std::ostream & stream) {
+        std::ostream & onDarkGreen(std::ostream & stream) noexcept {
             if (isColorized(stream)) {
                 COLORIZE_ON_MACOS(stream << "\033[42m");
                 COLORIZE_ON_LINUX(stream << "\033[42m");
@@ -390,7 +390,7 @@ namespace logging {
             return stream;
         }
 
-        std::ostream & onBlue(std::ostream & stream) {
+        std::ostream & onBlue(std::ostream & stream) noexcept {
             if (isColorized(stream)) {
                 COLORIZE_ON_MACOS(stream << "\033[44m");
                 COLORIZE_ON_LINUX(stream << "\033[44m");
@@ -399,7 +399,7 @@ namespace logging {
             return stream;
         }
 
-        std::ostream & onDarkBlue(std::ostream & stream) {
+        std::ostream & onDarkBlue(std::ostream & stream) noexcept {
             if (isColorized(stream)) {
                 COLORIZE_ON_MACOS(stream << "\033[44m");
                 COLORIZE_ON_LINUX(stream << "\033[44m");
@@ -410,7 +410,7 @@ namespace logging {
 
         //-------------------------------------------------------------------------
 
-        std::ostream & onYellow(std::ostream & stream) {
+        std::ostream & onYellow(std::ostream & stream) noexcept {
             if (isColorized(stream)) {
                 COLORIZE_ON_MACOS(stream << "\033[43m");
                 COLORIZE_ON_LINUX(stream << "\033[43m");
@@ -419,7 +419,7 @@ namespace logging {
             return stream;
         }
 
-        std::ostream & onDarkYellow(std::ostream & stream) {
+        std::ostream & onDarkYellow(std::ostream & stream) noexcept {
             if (isColorized(stream)) {
                 COLORIZE_ON_MACOS(stream << "\033[43m");
                 COLORIZE_ON_LINUX(stream << "\033[43m");
@@ -428,7 +428,7 @@ namespace logging {
             return stream;
         }
 
-        std::ostream & onMagenta(std::ostream & stream) {
+        std::ostream & onMagenta(std::ostream & stream) noexcept {
             if (isColorized(stream)) {
                 COLORIZE_ON_MACOS(stream << "\033[45m");
                 COLORIZE_ON_LINUX(stream << "\033[45m");
@@ -437,7 +437,7 @@ namespace logging {
             return stream;
         }
 
-        std::ostream & onDarkMagenta(std::ostream & stream) {
+        std::ostream & onDarkMagenta(std::ostream & stream) noexcept {
             if (isColorized(stream)) {
                 COLORIZE_ON_MACOS(stream << "\033[45m");
                 COLORIZE_ON_LINUX(stream << "\033[45m");
@@ -446,7 +446,7 @@ namespace logging {
             return stream;
         }
 
-        std::ostream & onCyan(std::ostream & stream) {
+        std::ostream & onCyan(std::ostream & stream) noexcept {
             if (isColorized(stream)) {
                 COLORIZE_ON_MACOS(stream << "\033[46m");
                 COLORIZE_ON_LINUX(stream << "\033[46m");
@@ -455,7 +455,7 @@ namespace logging {
             return stream;
         }
 
-        std::ostream & onDarkCyan(std::ostream & stream) {
+        std::ostream & onDarkCyan(std::ostream & stream) noexcept {
             if (isColorized(stream)) {
                 COLORIZE_ON_MACOS(stream << "\033[46m");
                 COLORIZE_ON_LINUX(stream << "\033[46m");
@@ -466,7 +466,7 @@ namespace logging {
 
         //-------------------------------------------------------------------------
 
-        std::ostream & onWhite(std::ostream & stream) {
+        std::ostream & onWhite(std::ostream & stream) noexcept {
             if (isColorized(stream)) {
                 COLORIZE_ON_MACOS(stream << "\033[47m");
                 COLORIZE_ON_LINUX(stream << "\033[47m");
@@ -475,7 +475,7 @@ namespace logging {
             return stream;
         }
 
-        std::ostream & onDarkWhite(std::ostream & stream) {
+        std::ostream & onDarkWhite(std::ostream & stream) noexcept {
             if (isColorized(stream)) {
                 COLORIZE_ON_MACOS(stream << "\033[47m");
                 COLORIZE_ON_LINUX(stream << "\033[47m");
@@ -488,7 +488,7 @@ namespace logging {
         //////////////////////////////////////////* Functions */////////////////////////////////////////////
         /**************************************************************************************************/
 
-        std::ostream & reset(std::ostream & stream) {
+        std::ostream & reset(std::ostream & stream) noexcept {
             if (isColorized(stream)) {
                 COLORIZE_ON_MACOS(stream << "\033[00m");
                 COLORIZE_ON_LINUX(stream << "\033[00m");

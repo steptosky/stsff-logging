@@ -40,7 +40,7 @@ from vcs_info import VcsInfo
 
 
 class LibConan(ConanFile):
-    version = "1.0.2"
+    version = "1.1.0"
     name = 'stsff-logging'
     license = 'BSD 3-Clause'
     description = "Cpp library for logging"

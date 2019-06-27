@@ -11,6 +11,6 @@ conan export . stsff/stable
 
 :: For safe reason it is turned off by default
 :: you have to uncomment it and set the CORRECT version.
-:: conan upload stsff-logging/1.0.2@stsff/stable -r stsff -c --retry 2 --retry-wait 5
+:: conan upload stsff-logging/1.1.0@stsff/stable -r stsff -c --retry 2 --retry-wait 5
 ::==========================================================
 pause

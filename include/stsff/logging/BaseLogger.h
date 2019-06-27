@@ -39,6 +39,7 @@
 #include <exception>
 #include "utils/SourceName.h"
 #include "utils/Colorize.h"
+#include "utils/CodeLocation.h"
 
 /**************************************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -109,21 +110,17 @@ namespace logging {
          * \brief Represents a log message for the logger.
          */
         struct LogMsg {
-            LogMsg(const std::size_t lvl, const StringView category, const StringView msg,
-                   const StringView fn, const StringView fl, const int ln) noexcept
+            LogMsg(const std::size_t lvl, const StringView category,
+                   const StringView msg, const CodeLocation codeLocation) noexcept
                 : mCategory(category),
                   mMsg(msg),
-                  mFunction(fn),
-                  mFile(fl),
                   mLevel(lvl),
-                  mLine(ln) {}
+                  mCodeLocation(codeLocation) {}
 
-            StringView mCategory; //!< message category.
-            StringView mMsg;      //!< message itself.
-            StringView mFunction; //!< function name.
-            StringView mFile;     //!< source file name.
-            std::size_t mLevel;   //!< level of current message.
-            int mLine;            //!< source line number.
+            StringView mCategory;       //!< message category.
+            StringView mMsg;            //!< message itself.
+            std::size_t mLevel;         //!< level of current message.
+            CodeLocation mCodeLocation; //!< code location.
         };
 
         /// @}
@@ -322,16 +319,16 @@ namespace logging {
         /// @{
 
         explicit LogMessage(const BaseLogger & logger) noexcept
-            : LogMessage(&logger, StringView(), StringView(), 0) {}
+            : LogMessage(&logger, CodeLocation()) {}
 
         explicit LogMessage(const BaseLogger * logger) noexcept
-            : LogMessage(logger, StringView(), StringView(), 0) {}
+            : LogMessage(logger, CodeLocation()) {}
 
-        LogMessage(const BaseLogger & logger, const StringView function, const StringView file, const int line) noexcept
-            : LogMessage(&logger, function, file, line) {}
+        LogMessage(const BaseLogger & logger, const CodeLocation codeLocation) noexcept
+            : LogMessage(&logger, codeLocation) {}
 
-        LogMessage(const BaseLogger * logger, const StringView function, const StringView file, const int line) noexcept
-            : mLogMsg(BaseLogger::LvlMsg, StringView(), StringView(), function, file, line),
+        LogMessage(const BaseLogger * logger, const CodeLocation codeLocation) noexcept
+            : mLogMsg(BaseLogger::LvlMsg, StringView(), StringView(), codeLocation),
               mLog(logger) {
             assert(mLog);
         }
@@ -441,17 +438,17 @@ namespace logging {
         }
 
         LogMessage & setFunction(const StringView fn) noexcept {
-            mLogMsg.mFunction = fn;
+            mLogMsg.mCodeLocation.mFunction = fn;
             return *this;
         }
 
         LogMessage & setFile(const StringView file) noexcept {
-            mLogMsg.mFile = file;
+            mLogMsg.mCodeLocation.mFile = file;
             return *this;
         }
 
         LogMessage & setFileLine(const int line) noexcept {
-            mLogMsg.mLine = line;
+            mLogMsg.mCodeLocation.mLine = line;
             return *this;
         }
 
@@ -510,30 +507,30 @@ namespace logging {
 // Log messages
 
 // Just creates LogMessage variable and you can use it then 
-#   define LVar(VAR,L)      stsff::logging::LogMessage VAR(L, __STS_FUNC_NAME__, stsff::logging::sourcePath(__FILE__), __LINE__);VAR
-#   define LCritical(L)         stsff::logging::LogMessage(L, __STS_FUNC_NAME__, stsff::logging::sourcePath(__FILE__), __LINE__).critical()
-#   define LError(L)            stsff::logging::LogMessage(L, __STS_FUNC_NAME__, stsff::logging::sourcePath(__FILE__), __LINE__).error()
-#   define LFail(L)             stsff::logging::LogMessage(L, __STS_FUNC_NAME__, stsff::logging::sourcePath(__FILE__), __LINE__).fail()
-#   define LWarning(L)          stsff::logging::LogMessage(L, __STS_FUNC_NAME__, stsff::logging::sourcePath(__FILE__), __LINE__).warning()
-#   define LSuccess(L)          stsff::logging::LogMessage(L, __STS_FUNC_NAME__, stsff::logging::sourcePath(__FILE__), __LINE__).success()
-#   define LInfo(L)             stsff::logging::LogMessage(L, __STS_FUNC_NAME__, stsff::logging::sourcePath(__FILE__), __LINE__).info()
-#   define LMessage(L)          stsff::logging::LogMessage(L, __STS_FUNC_NAME__, stsff::logging::sourcePath(__FILE__), __LINE__).message()
-#   define LDebug(L)            stsff::logging::LogMessage(L, __STS_FUNC_NAME__, stsff::logging::sourcePath(__FILE__), __LINE__).debug()
-#   define LLevel(L,LVL)        stsff::logging::LogMessage(L, __STS_FUNC_NAME__, stsff::logging::sourcePath(__FILE__), __LINE__).level(LVL)
+#   define LVar(VAR,L)      stsff::logging::LogMessage VAR(L, MakeCodeLocation());VAR
+#   define LCritical(L)         stsff::logging::LogMessage(L, MakeCodeLocation()).critical()
+#   define LError(L)            stsff::logging::LogMessage(L, MakeCodeLocation()).error()
+#   define LFail(L)             stsff::logging::LogMessage(L, MakeCodeLocation()).fail()
+#   define LWarning(L)          stsff::logging::LogMessage(L, MakeCodeLocation()).warning()
+#   define LSuccess(L)          stsff::logging::LogMessage(L, MakeCodeLocation()).success()
+#   define LInfo(L)             stsff::logging::LogMessage(L, MakeCodeLocation()).info()
+#   define LMessage(L)          stsff::logging::LogMessage(L, MakeCodeLocation()).message()
+#   define LDebug(L)            stsff::logging::LogMessage(L, MakeCodeLocation()).debug()
+#   define LLevel(L,LVL)        stsff::logging::LogMessage(L, MakeCodeLocation()).level(LVL)
 #   define LTimeStamp(F)        stsff::logging::BaseLogger::timeStamp(F)
 
 // Category log messages
 
 // Just creates LogMessage variable and you can use it then 
-#   define LcVar(VAR,L,C)   stsff::logging::LogMessage VAR(L, __STS_FUNC_NAME__, stsff::logging::sourcePath(__FILE__), __LINE__);VAR.setCategory(C)
-#   define LcCritical(L,C)      stsff::logging::LogMessage(L, __STS_FUNC_NAME__, stsff::logging::sourcePath(__FILE__), __LINE__).setCategory(C).critical()
-#   define LcError(L,C)         stsff::logging::LogMessage(L, __STS_FUNC_NAME__, stsff::logging::sourcePath(__FILE__), __LINE__).setCategory(C).error()
-#   define LcWarning(L,C)       stsff::logging::LogMessage(L, __STS_FUNC_NAME__, stsff::logging::sourcePath(__FILE__), __LINE__).setCategory(C).warning()
-#   define LcSuccess(L,C)       stsff::logging::LogMessage(L, __STS_FUNC_NAME__, stsff::logging::sourcePath(__FILE__), __LINE__).setCategory(C).success()
-#   define LcInfo(L,C)          stsff::logging::LogMessage(L, __STS_FUNC_NAME__, stsff::logging::sourcePath(__FILE__), __LINE__).setCategory(C).info()
-#   define LcMessage(L,C)       stsff::logging::LogMessage(L, __STS_FUNC_NAME__, stsff::logging::sourcePath(__FILE__), __LINE__).setCategory(C).message()
-#   define LcDebug(L,C)         stsff::logging::LogMessage(L, __STS_FUNC_NAME__, stsff::logging::sourcePath(__FILE__), __LINE__).setCategory(C).debug()
-#   define LcLevel(L,C,LVL)     stsff::logging::LogMessage(L, __STS_FUNC_NAME__, stsff::logging::sourcePath(__FILE__), __LINE__).setCategory(C).level(LVL)
+#   define LcVar(VAR,L,C)   stsff::logging::LogMessage VAR(L, MakeCodeLocation());VAR.setCategory(C)
+#   define LcCritical(L,C)      stsff::logging::LogMessage(L, MakeCodeLocation()).setCategory(C).critical()
+#   define LcError(L,C)         stsff::logging::LogMessage(L, MakeCodeLocation()).setCategory(C).error()
+#   define LcWarning(L,C)       stsff::logging::LogMessage(L, MakeCodeLocation()).setCategory(C).warning()
+#   define LcSuccess(L,C)       stsff::logging::LogMessage(L, MakeCodeLocation()).setCategory(C).success()
+#   define LcInfo(L,C)          stsff::logging::LogMessage(L, MakeCodeLocation()).setCategory(C).info()
+#   define LcMessage(L,C)       stsff::logging::LogMessage(L, MakeCodeLocation()).setCategory(C).message()
+#   define LcDebug(L,C)         stsff::logging::LogMessage(L, MakeCodeLocation()).setCategory(C).debug()
+#   define LcLevel(L,C,LVL)     stsff::logging::LogMessage(L, MakeCodeLocation()).setCategory(C).level(LVL)
 
 // Force push
 #   define LPush stsff::logging::LogMessage::CmdPush()

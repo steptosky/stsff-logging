@@ -83,7 +83,7 @@ TEST(BaseLogger, formatting) {
     EXPECT_STREQ("log-category,msg-cat,message,,,0\n", result.c_str());
     //---------------
     stream.str(std::string());
-    LogMessage(logger, "function", "file", 5).message() << "message" << LPush;
+    LogMessage(logger, CodeLocation("function", "file", 5)).message() << "message" << LPush;
     result = stream.str();
     EXPECT_STREQ("log-category,,message,function,file,5\n", result.c_str());
 }

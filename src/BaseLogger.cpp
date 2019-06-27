@@ -204,15 +204,15 @@ namespace logging {
                     break;
                 }
                 case functionName: {
-                    stream.write(logMsg.mFunction.data(), logMsg.mFunction.size());
+                    stream.write(logMsg.mCodeLocation.mFunction.data(), logMsg.mCodeLocation.mFunction.size());
                     break;
                 }
                 case fileName: {
-                    stream.write(logMsg.mFile.data(), logMsg.mFile.size());
+                    stream.write(logMsg.mCodeLocation.mFile.data(), logMsg.mCodeLocation.mFile.size());
                     break;
                 }
                 case fileLineNum: {
-                    stream << logMsg.mLine;
+                    stream << logMsg.mCodeLocation.mLine;
                     break;
                 }
                 case time: {
